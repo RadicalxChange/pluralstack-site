@@ -1,0 +1,61 @@
+---
+import { marked } from 'marked';
+import { type CardsSection } from 'types';
+import Action from '@components/Action.astro';
+import Card from '@components/Card.astro';
+import Section from '@components/Section.astro';
+
+interface Props extends CardsSection {}
+
+const { eyebrow, heading, body, items, columns, outro, cta, compactTiles, ...rest } = Astro.props;
+---
+
+<Section {...rest} class="text-left">
+    {eyebrow && <p class="text-sm font-bold tracking-widest uppercase opacity-60">{eyebrow}</p>}
+    {
+        heading && (
+            <h2 class:list={[eyebrow && 'mt-3', 'text-2xl font-black sm:text-4xl text-balance']}>
+                {heading}
+            </h2>
+        )
+    }
+    {body && <div class:list={[heading && 'mt-4', 'max-w-prose markdown']} set:html={marked.parse(body)} />}
+    {
+        items && items?.length > 0 && (
+            // flex-wrap + justify-center rather than CSS grid: grid leaves a short last row
+            // (e.g. 5 items over 3 columns) pinned to the left instead of centred under the
+            // row above it. Each card's width is capped to its column share via flex-basis
+            // (which, once set, overrides Card's own `w-full` on the main axis); no flex-grow
+            // is applied (the browser default is already grow:0), so cards stay uniformly
+            // sized and only the leftover space in a short row gets centred away instead of
+            // being divided up between whichever cards happen to be in that row.
+            <div
+                class:list={[(heading || body) && 'mt-8', 'flex flex-wrap justify-center gap-8']}
+            >
+                {items?.map((item) => (
+                    <Card
+                        {...item}
+                        compactTiles={compactTiles}
+                        class:list={[
+                            columns === 'one'
+                                ? 'basis-full'
+                                : columns === 'two'
+                                  ? 'basis-full md:basis-[calc(50%-1rem)]'
+                                  : 'basis-full md:basis-[calc(33.333%-1.334rem)]'
+                        ]}
+                    />
+                ))}
+            </div>
+        )
+    }
+    {outro && <div class="mt-8 max-w-prose markdown" set:html={marked.parse(outro)} />}
+    {
+        cta && cta.length > 0 && (
+            <div class="flex flex-wrap items-center justify-start gap-4 mt-8">
+                {cta.map((item) => (
+                    <Action action={item} class:list={[item._type === 'actionLink' && 'link-underline']} />
+                ))}
+            </div>
+        )
+    }
+</Section>

@@ -1,0 +1,61 @@
+---
+import { marked } from 'marked';
+import { type Testimonial } from 'types';
+import ResponsiveImage from '@components/ResponsiveImage.astro';
+
+interface Props extends Testimonial {
+    class?: string;
+}
+
+const { quote, author, theme, hasBorder, class: className } = Astro.props;
+---
+
+<div
+    class:list={['card', hasBorder !== false && 'card-border', 'w-full max-w-2xl', className]}
+    {...theme && theme !== 'transparent' && { 'data-theme': theme }}
+>
+    <div class="text-left card-body">
+        {
+            author?.company && (
+                <div class="mb-4 font-bold">
+                    {author.company?.logo?.src ? (
+                        <ResponsiveImage
+                            _id={author.company.logo._id}
+                            src={author.company.logo.src}
+                            width={author.company.logo.dimensions?.width}
+                            height={author.company.logo.dimensions?.height}
+                            alt={author.company.logo.alt}
+                            class="max-w-24"
+                        />
+                    ) : (
+                        <span>{author.company.name}</span>
+                    )}
+                </div>
+            )
+        }
+        {quote && <blockquote class="text-lg sm:text-xl" set:html={marked.parse(quote)} />}
+        {
+            author && (
+                <div class="flex flex-col gap-4 mt-4">
+                    <div class="font-bold">
+                        <!-- prettier-ignore -->
+                        <span>{author.name}</span>{author.title && (<>{', '}<span>{author.title}</span></>)}
+                    </div>
+
+                    {author.image?.src && (
+                        <div class="w-20 overflow-hidden rounded-full aspect-square">
+                            <ResponsiveImage
+                                _id={author.image._id}
+                                src={author.image.src}
+                                width={80}
+                                height={80}
+                                alt={author.image.alt}
+                                class="object-cover w-full h-full"
+                            />
+                        </div>
+                    )}
+                </div>
+            )
+        }
+    </div>
+</div>

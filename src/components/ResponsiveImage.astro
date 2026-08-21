@@ -1,0 +1,19 @@
+---
+import { Image } from 'astro:assets';
+
+interface Props {
+    _id?: string;
+    src: string;
+    width: number;
+    height: number;
+    alt?: string;
+    class?: string;
+    loading?: 'eager' | 'lazy';
+}
+
+const { src, width, height, alt, class: className, loading } = Astro.props;
+
+const format = src?.includes('.svg') ? 'svg' : 'webp';
+---
+
+<Image src={src} width={width} height={height} alt={alt || ''} format={format} class:list={className} loading={loading ?? 'lazy'} />

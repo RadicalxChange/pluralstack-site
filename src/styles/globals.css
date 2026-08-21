@@ -1,0 +1,409 @@
+@import 'tailwindcss';
+
+/*
+ * Built-in themes are disabled so the custom light/dark blocks below are the only
+ * source of theme tokens. Otherwise daisyUI also emits its own `light` theme at
+ * identical specificity and ours only wins on source order, which would silently
+ * revert the design if that order ever changed.
+ */
+@plugin "daisyui" {
+    themes: false;
+}
+
+/*
+ * Satoshi, self-hosted for headings only (see the h1–h6 rule below). Variable
+ * font, so the 300–900 axis is available from this one file instead of a
+ * static weight per cut. Licensed under Fontshare's Free Font License; see
+ * public/fonts/satoshi/LICENSE.txt.
+ */
+@font-face {
+    font-family: 'Satoshi';
+    src:
+        url('/fonts/satoshi/Satoshi-Variable.woff2') format('woff2'),
+        url('/fonts/satoshi/Satoshi-Variable.woff') format('woff');
+    font-weight: 300 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+/*
+ * IBM Plex Sans throughout. `--font-mono` is deliberately not overridden, so it
+ * falls back to Tailwind's system stack and `<code>` or any `font-mono` utility
+ * still resolves without pulling down a second webfont.
+ */
+@theme {
+    --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-heading: 'Satoshi', ui-sans-serif, system-ui, sans-serif;
+    --default-font-family: var(--font-sans);
+}
+
+/*
+ * Barely-there corners, hairline borders, no shadow or noise. `--radius-*` and
+ * `--depth` are daisyUI theme variables, so setting them here reshapes every
+ * component at once instead of editing utility classes component by component.
+ */
+@plugin "daisyui/theme" {
+    name: 'light';
+    --color-primary: #111111;
+    --color-primary-content: #ffffff;
+    --color-secondary: #f2f2f2;
+    --color-secondary-content: #111111;
+    --color-accent: #eeeeee;
+    --color-accent-content: #111111;
+    --color-neutral: #111111;
+    --color-neutral-content: #ffffff;
+    --color-base-100: #ffffff;
+    --color-base-200: #f2f2f2;
+    --color-base-300: #cccccc;
+    --color-base-content: #111111;
+    --radius-selector: 0.125rem;
+    --radius-field: 0.25rem;
+    --radius-box: 0.25rem;
+    --border: 1px;
+    --depth: 0;
+    --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+    name: 'dark';
+    --color-primary: #f2f2f2;
+    --color-primary-content: #111111;
+    --color-secondary: #1c1c1c;
+    --color-secondary-content: #f2f2f2;
+    --color-accent: #2a2a2a;
+    --color-accent-content: #f2f2f2;
+    --color-neutral: #f2f2f2;
+    --color-neutral-content: #111111;
+    --color-base-100: #111111;
+    --color-base-200: #1c1c1c;
+    --color-base-300: #3a3a3a;
+    --color-base-content: #f2f2f2;
+    --radius-selector: 0.125rem;
+    --radius-field: 0.25rem;
+    --radius-box: 0.25rem;
+    --border: 1px;
+    --depth: 0;
+    --noise: 0;
+}
+
+/*
+ * Based on daisyUI's stock "lemonade" theme (node_modules/daisyui/theme/lemonade.css),
+ * with primary swapped from the stock green to the site's off-white so `.btn-primary`
+ * matches the rest of the site's palette. Not used by default — opt in on any element
+ * with `data-theme="lemonade"`. Built-in themes are still globally disabled above, so
+ * this is the only way to reach it.
+ */
+@plugin "daisyui/theme" {
+    name: 'lemonade';
+    color-scheme: light;
+    --color-base-100: oklch(98.71% 0.02 123.72);
+    --color-base-200: oklch(91.8% 0.018 123.72);
+    --color-base-300: oklch(84.89% 0.017 123.72);
+    --color-base-content: oklch(19.742% 0.004 123.72);
+    --color-primary: #f2f2f2;
+    --color-primary-content: #111111;
+    --color-secondary: oklch(77.75% 0.196 111.09);
+    --color-secondary-content: oklch(15.55% 0.039 111.09);
+    --color-accent: oklch(85.39% 0.201 100.73);
+    --color-accent-content: oklch(17.078% 0.04 100.73);
+    --color-neutral: oklch(30.98% 0.075 108.6);
+    --color-neutral-content: oklch(86.196% 0.015 108.6);
+    --color-info: oklch(86.19% 0.047 224.14);
+    --color-info-content: oklch(17.238% 0.009 224.14);
+    --color-success: oklch(86.19% 0.047 157.85);
+    --color-success-content: oklch(17.238% 0.009 157.85);
+    --color-warning: oklch(86.19% 0.047 102.15);
+    --color-warning-content: oklch(17.238% 0.009 102.15);
+    --color-error: oklch(86.19% 0.047 25.85);
+    --color-error-content: oklch(17.238% 0.009 25.85);
+    --radius-selector: 1rem;
+    --radius-field: 0.5rem;
+    --radius-box: 1rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --depth: 0;
+    --noise: 0;
+}
+
+/*
+ * daisyUI's stock "cyberpunk" theme, copied verbatim from
+ * node_modules/daisyui/theme/cyberpunk.css (values unchanged). Not used by default —
+ * opt in on any element with `data-theme="cyberpunk"`. Built-in themes are still
+ * globally disabled above, so this is the only way to reach it.
+ */
+@plugin "daisyui/theme" {
+    name: 'cyberpunk';
+    color-scheme: light;
+    --color-base-100: oklch(94.51% 0.179 104.32);
+    --color-base-200: oklch(91.51% 0.179 104.32);
+    --color-base-300: oklch(85.51% 0.179 104.32);
+    --color-base-content: oklch(0% 0 0);
+    --color-primary: oklch(74.22% 0.209 6.35);
+    --color-primary-content: oklch(14.844% 0.041 6.35);
+    --color-secondary: oklch(83.33% 0.184 204.72);
+    --color-secondary-content: oklch(16.666% 0.036 204.72);
+    --color-accent: oklch(71.86% 0.217 310.43);
+    --color-accent-content: oklch(14.372% 0.043 310.43);
+    --color-neutral: oklch(23.04% 0.065 269.31);
+    --color-neutral-content: oklch(94.51% 0.179 104.32);
+    --color-info: oklch(72.06% 0.191 231.6);
+    --color-info-content: oklch(0% 0 0);
+    --color-success: oklch(64.8% 0.15 160);
+    --color-success-content: oklch(0% 0 0);
+    --color-warning: oklch(84.71% 0.199 83.87);
+    --color-warning-content: oklch(0% 0 0);
+    --color-error: oklch(71.76% 0.221 22.18);
+    --color-error-content: oklch(0% 0 0);
+    --radius-selector: 0rem;
+    --radius-field: 0rem;
+    --radius-box: 0rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --depth: 0;
+    --noise: 0;
+}
+
+/*
+ * Buttons match paragraph typography (IBM Plex Sans, regular weight) instead of
+ * daisyUI's bold default, and sit closer to their text: --btn-p is daisyUI's
+ * horizontal padding-inline variable (10px, trimmed to 8px below). There's no
+ * real padding-top/bottom — the button is a fixed-height flex box that
+ * centers its content — so --size (32px, trimmed to 28px below) is what
+ * controls the vertical breathing room instead; -4px there reads as -2px off
+ * the top and -2px off the bottom.
+ */
+.btn {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    --btn-p: 0.5rem;
+    --size: 1.75rem;
+}
+
+/*
+ * Primary: an off-white fill with the same hairline grey outline used for
+ * section dividers and card borders (--color-base-300) — daisyUI's default
+ * border color tracks the fill itself, so it has to be set explicitly here.
+ * Text stays a fixed dark grey rather than following the theme's
+ * primary-content token, since the bright fill needs the same dark text in
+ * both light and dark mode.
+ */
+.btn-primary {
+    --btn-color: #f2f2f2;
+    --btn-fg: #111111;
+    border-color: var(--color-base-300);
+}
+
+/*
+ * Secondary: outline only, no fill — same hairline grey border, transparent
+ * background. Text keeps the theme's secondary-content color.
+ */
+.btn-secondary {
+    --btn-color: transparent;
+    border-color: var(--color-base-300);
+}
+
+/*
+ * Card equivalents of .btn-primary/.btn-secondary above, same reasoning: a fixed
+ * color-role treatment independent of whatever theme the card's ambient section is in,
+ * rather than a card-level theme swap (there's no daisyUI theme actually named "primary").
+ * `hasBorder` (Card.astro) still controls whether card-border itself is present; these
+ * only set the color-border pairs once it is.
+ */
+.card-primary {
+    background-color: #f2f2f2;
+    color: #111111;
+    border-color: var(--color-base-300);
+}
+
+.card-secondary {
+    background-color: transparent;
+    border-color: var(--color-base-300);
+}
+
+/*
+ * Old-school document feel: restrained heading weights instead of the template's
+ * 900-weight display type, hairline rules between sections, and links that look
+ * like links.
+ */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+/*
+ * The divider between stacked sections is capped to the same width as each
+ * section's centred content column (`max-w-4xl` = 56rem, mx-auto, per
+ * Section.astro) instead of running edge-to-edge. It's a pseudo-element
+ * rather than a border on <section> itself so it can be capped and centred
+ * independently of the section's own padding box, while staying flush with
+ * the section boundary — a border-top on the content div would sit below
+ * the section's top padding instead. The left/right insets mirror that same
+ * padding (`px-12 sm:px-18 lg:px-24`) at each breakpoint, so the line's
+ * edges track the content column's edges on narrow screens too, not just on
+ * screens wide enough for the column to hit its max-width.
+ */
+section + section,
+section[data-divider-after='true'] {
+    position: relative;
+}
+
+section + section::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 3rem;
+    max-width: 56rem;
+    margin-inline: auto;
+    border-top: 1px solid var(--color-base-300);
+}
+
+/*
+ * Same bar, along the bottom edge instead — for a section that's the last one on
+ * the page (opted in via `dividerAfter`), where there's no following <section> for
+ * the rule above to attach to.
+ */
+section[data-divider-after='true']::after {
+    content: '';
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline: 3rem;
+    max-width: 56rem;
+    margin-inline: auto;
+    border-top: 1px solid var(--color-base-300);
+}
+
+@media (width >= 40rem) {
+    section + section::before,
+    section[data-divider-after='true']::after {
+        inset-inline: 4.5rem;
+    }
+}
+
+@media (width >= 64rem) {
+    section + section::before,
+    section[data-divider-after='true']::after {
+        inset-inline: 6rem;
+    }
+}
+
+a {
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+}
+
+/*
+ * Shared look for inline actionLink CTAs — card links, section links, hero
+ * outro links — and prose links inside `.markdown`. One definition so a
+ * link reads the same whether it's a standalone CTA or embedded in a
+ * sentence: heading-weight text, underlined until hover.
+ */
+.link-underline,
+.markdown a {
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.link-underline:hover,
+.markdown a:hover {
+    text-decoration: none;
+}
+
+/*
+ * Matches the hero outro's own `text-sm opacity-70` treatment (Hero.astro),
+ * so a standalone CTA link reads exactly like that one does — smaller and
+ * quieter than body copy, not a fourth (bold, full-opacity) type of link.
+ */
+.link-underline {
+    font-size: 0.875rem;
+    opacity: 0.7;
+}
+
+.badge {
+    letter-spacing: 0.08em;
+}
+
+/*
+ * Every component that renders a markdown field wraps the output in `.markdown`.
+ * Tailwind's preflight strips heading sizes and list markers, so without these rules
+ * multi-block markdown collapses into undifferentiated text. Sizing is in `em` and
+ * colour comes from `currentColor`, so this works inside any section theme and in
+ * both centred and left-aligned contexts.
+ */
+.markdown > *:first-child {
+    margin-top: 0;
+}
+
+.markdown > *:last-child {
+    margin-bottom: 0;
+}
+
+.markdown p,
+.markdown ul,
+.markdown ol,
+.markdown blockquote,
+.markdown table {
+    margin-block: 0.75em;
+}
+
+.markdown h2,
+.markdown h3,
+.markdown h4 {
+    font-weight: 600;
+    line-height: 1.3;
+    margin-block: 1.5em 0.5em;
+    text-wrap: balance;
+}
+
+.markdown h2 {
+    font-size: 1.5em;
+}
+
+.markdown h3 {
+    font-size: 1.25em;
+}
+
+.markdown h4 {
+    font-size: 1.0625em;
+}
+
+.markdown ul {
+    list-style: square;
+    padding-inline-start: 1.25em;
+}
+
+.markdown ol {
+    list-style: decimal;
+    padding-inline-start: 1.25em;
+}
+
+.markdown li {
+    margin-block: 0.25em;
+}
+
+.markdown li::marker {
+    opacity: 0.5;
+}
+
+.markdown strong {
+    font-weight: 700;
+}
+
+/* No left border: the quote has to sit correctly in centred sections too. */
+.markdown blockquote {
+    font-size: 1.125em;
+    font-style: italic;
+    opacity: 0.9;
+}
+
+.markdown hr {
+    margin-block: 2em;
+    opacity: 0.2;
+}

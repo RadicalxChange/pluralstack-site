@@ -1,0 +1,91 @@
+---
+import { marked } from 'marked';
+import { type FormSection } from 'types';
+import Section from '@components/Section.astro';
+
+interface Props extends FormSection {}
+
+const { heading, body, fields, submitLabel, isConnected, notConnectedNotice, ...rest } = Astro.props;
+
+// Until a form backend is chosen, the form renders disabled and posts nowhere. See
+// `isConnected` in studio/schemaTypes/formSection.ts.
+const isDisabled = !isConnected;
+---
+
+<Section {...rest}>
+    <div class="max-w-xl mx-auto">
+        {
+            heading && (
+                <h2 class="text-2xl font-black sm:text-4xl text-balance">
+                    {heading}
+                </h2>
+            )
+        }
+        {body && <div class:list={[heading && 'mt-4', 'max-w-prose markdown']} set:html={marked.parse(body)} />}
+        {
+            fields && fields.length > 0 && (
+                <form class="mt-8 space-y-4" inert={isDisabled}>
+                    {fields.map((field) => (
+                        <div class="w-full">
+                            {field.type === 'checkbox' ? (
+                                <label class="flex items-start gap-3" for={field.name}>
+                                    <input
+                                        class="mt-1 checkbox"
+                                        id={field.name}
+                                        name={field.name}
+                                        type="checkbox"
+                                        required={field.isRequired}
+                                        disabled={isDisabled}
+                                    />
+                                    <span>
+                                        {field.label}
+                                        {field.isRequired && <span aria-hidden="true"> *</span>}
+                                    </span>
+                                </label>
+                            ) : (
+                                <>
+                            <label class="block mb-1.5 font-medium" for={field.name}>
+                                {field.label}
+                                {field.isRequired && <span aria-hidden="true"> *</span>}
+                            </label>
+                            {field.type === 'textarea' ? (
+                                <textarea
+                                    class="w-full textarea"
+                                    id={field.name}
+                                    name={field.name}
+                                    rows="4"
+                                    required={field.isRequired}
+                                    disabled={isDisabled}
+                                />
+                            ) : field.type === 'select' ? (
+                                <select class="w-full select" id={field.name} name={field.name} required={field.isRequired} disabled={isDisabled}>
+                                    <option value="">Please choose…</option>
+                                    {field.options?.map((option) => (
+                                        <option value={option}>{option}</option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <input
+                                    class="w-full input"
+                                    id={field.name}
+                                    name={field.name}
+                                    type={field.type === 'email' ? 'email' : 'text'}
+                                    required={field.isRequired}
+                                    disabled={isDisabled}
+                                />
+                            )}
+                                </>
+                            )}
+                        </div>
+                    ))}
+                    <div class="pt-2">
+                        <button class="btn btn-primary" type="submit" disabled={isDisabled}>
+                            {submitLabel || 'Submit'}
+                        </button>
+                    </div>
+                </form>
+            )
+        }
+        {isDisabled && notConnectedNotice && <p class="mt-4 text-sm opacity-60">{notConnectedNotice}</p>}
+    </div>
+</Section>

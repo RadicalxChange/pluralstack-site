@@ -1,0 +1,83 @@
+---
+import { type SiteConfig, type CustomImage } from 'types';
+import Footer from '@components/Footer.astro';
+import Header from '@components/Header.astro';
+import { fetchData } from '@data/siteConfig';
+
+import '../styles/globals.css';
+
+interface Props {
+    title: string;
+    addTitleSuffix?: boolean;
+    description?: string;
+    image?: CustomImage;
+}
+
+const { addTitleSuffix, description, image } = Astro.props;
+
+const configData: SiteConfig = (await fetchData()) || {};
+const titleSuffix = configData.titleSuffix && addTitleSuffix !== false ? configData.titleSuffix : undefined;
+const title = [Astro.props.title, titleSuffix].filter(Boolean).join(' | ');
+const resolvedImage = image?.src ? { src: new URL(image.src, Astro.site).toString() } : undefined;
+const canonicalURL = new URL(Astro.request.url, Astro.site);
+
+/**
+ * Enforce some standard canonical URL formatting across the site.
+ */
+function formatCanonicalURL(url: string | URL) {
+    const path = url.toString();
+    const hasQueryParams = path.includes('?');
+    // If there are query params, make sure the URL has no trailing slash
+    if (hasQueryParams) {
+        path.replace(/\/?$/, '');
+    }
+    // otherwise, canonical URL always has a trailing slash
+    return path.replace(/\/?$/, hasQueryParams ? '' : '/');
+}
+---
+
+<!doctype html>
+<html lang="en" data-theme="light">
+    <head>
+        <!-- High Priority Global Metadata -->
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>{title}</title>
+        <meta name="generator" content={Astro.generator} />
+
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap"
+            rel="stylesheet"
+        />
+
+        <!-- Low Priority Global Metadata -->
+        {/* No explicit type: the favicon may be an SVG or a PNG depending on what is uploaded. */}
+        {configData.favicon?.src && <link rel="icon" href={configData.favicon.src} />}
+        <link rel="sitemap" href="/sitemap-index.xml" />
+
+        <!-- Page Metadata -->
+        <link rel="canonical" href={formatCanonicalURL(canonicalURL)} />
+        <meta name="description" content={description} />
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:url" content={formatCanonicalURL(canonicalURL)} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        {resolvedImage?.src && <meta property="og:image" content={resolvedImage.src} />}
+
+        <!-- X/Twitter -->
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content={formatCanonicalURL(canonicalURL)} />
+        <meta property="twitter:title" content={title} />
+        <meta property="twitter:description" content={description} />
+        {resolvedImage?.src && <meta property="twitter:image" content={resolvedImage.src} />}
+    </head>
+    <body class="antialiased">
+        <Header {...configData.header} />
+        <slot />
+        <Footer {...configData.footer} />
+    </body>
+</html>

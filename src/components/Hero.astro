@@ -1,0 +1,132 @@
+---
+import { marked } from 'marked';
+import { type HeroSection } from 'types';
+import Action from '@components/Action.astro';
+import Section from '@components/Section.astro';
+
+interface Props extends HeroSection {}
+
+const { heading, subheading, body, cta, outro, sketch, ...rest } = Astro.props;
+---
+
+<Section {...rest} class="text-left !py-16 sm:!py-24">
+    {
+        heading && (
+            <h1 class="text-[1.594rem] font-black sm:text-[2.55rem] text-balance">
+                {heading.split('\n').map((line, i) => (
+                    <Fragment>
+                        {i > 0 && <br />}
+                        {line}
+                    </Fragment>
+                ))}
+            </h1>
+        )
+    }
+    {
+        subheading && (
+            <h2 class:list={[heading && 'mt-4', 'text-xl font-bold sm:text-3xl text-balance opacity-80']}>
+                {subheading}
+            </h2>
+        )
+    }
+    {body && <div class:list={[(heading || subheading) && 'mt-6', 'max-w-prose markdown']} set:html={marked.parse(body)} />}
+    {
+        cta && cta.length > 0 && (
+            <div class:list={[(heading || body) && 'mt-8', 'flex flex-wrap items-center justify-start gap-4 hero-ctas']}>
+                {cta.map((item) => (
+                    <Action
+                        action={item}
+                        class:list={[item._type === 'actionLink' && 'link-underline']}
+                    />
+                ))}
+            </div>
+        )
+    }
+    {outro && <div class="mt-6 text-sm opacity-70 max-w-prose markdown" set:html={marked.parse(outro)} />}
+    {
+        // p5 grid sketch (variant chosen by the `sketch` field), 40% opacity, in Section's
+        // right-panel slot — full-bleed behind the text column (see Section.astro),
+        // transparent canvas, graphic anchored to the right side. Purely decorative: no
+        // pointer-events set here, so it never intercepts clicks meant for the CTAs above.
+        sketch && (
+            <Fragment slot="right-panel">
+                <div id="hero-sketch" class="w-full h-full opacity-40" data-sketch={sketch} />
+                <script>
+                    import p5 from 'p5';
+                    import { gridSketch } from '@scripts/gridSketch';
+                    import { gridSketchMark } from '@scripts/gridSketchMark';
+
+                    const container = document.getElementById('hero-sketch');
+                    if (container) {
+                        // "Squares" reacts to proximity to the hero's own CTAs (`.hero-ctas`,
+                        // a sibling of this canvas's wrapper under the same <section> — see
+                        // Section.astro) plus the nav bar's CTA (`.nav-bar .btn`, see
+                        // Header.astro). `isVisible` skips whichever nav rendering (desktop bar
+                        // vs. mobile panel) isn't actually on screen at the current breakpoint/
+                        // menu state — both exist in the DOM at once, but a `display:none` or
+                        // `visibility:hidden` copy would otherwise still report a stale rect.
+                        const isVisible = (el) => {
+                            const style = getComputedStyle(el);
+                            if (style.visibility === 'hidden' || style.display === 'none') return false;
+                            const rect = el.getBoundingClientRect();
+                            return rect.width > 0 && rect.height > 0;
+                        };
+                        const getInfluenceRects = () =>
+                            [...document.querySelectorAll('.hero-ctas > *, .nav-bar .btn')].filter(isVisible).map((el) => el.getBoundingClientRect());
+
+                        // "Mark" reacts to mouseY against a vertical axis twice the hero's own
+                        // height, centered on the hero's vertical midpoint — since a page using
+                        // this variant may have too few (or no) CTAs for CTA-proximity to read
+                        // well. The container already fills the <section> exactly (see
+                        // Section.astro's right-panel slot), so its own rect is the hero's rect.
+                        const getAxis = () => {
+                            const rect = container.getBoundingClientRect();
+                            return { centerY: rect.top + rect.height / 2, halfHeight: rect.height };
+                        };
+
+                        // Which sketch variant to draw, and which of the two dependencies above
+                        // it gets — see the `sketch` field on heroSection.ts. Falls back to
+                        // "Squares" for any unrecognised/legacy value.
+                        const sketchRunners = {
+                            squares: (p) => gridSketch(p, container, getInfluenceRects),
+                            mark: (p) => gridSketchMark(p, container, getAxis)
+                        };
+                        const runSketch = sketchRunners[container.dataset.sketch] || sketchRunners.squares;
+
+                        // Guards against a transient 0×0 layout on first paint — calling
+                        // `createCanvas(0, 0)` is a mistake p5 never recovers from even once
+                        // the container gets its real size. Deferring the initial `new p5(...)`
+                        // to the first non-zero size (rather than firing it eagerly and relying
+                        // on `updateSize()` to fix it up after the fact) sidesteps that.
+                        let instance = null;
+                        new ResizeObserver((entries) => {
+                            const { width, height } = entries[0].contentRect;
+                            if (width === 0 || height === 0) return;
+                            if (instance) {
+                                instance.updateSize();
+                            } else {
+                                instance = new p5(runSketch, container);
+                            }
+                        }).observe(container);
+                    }
+                </script>
+            </Fragment>
+        )
+    }
+</Section>
+
+<style>
+    /*
+     * The "mark" sketch (gridSketchMark.js) still draws white squares — DIFFERENCE
+     * blend mode is what makes overlapping squares flip white<->black, and swapping
+     * the fill color to black directly would break that flip (black-difference-black
+     * stays black, losing the pattern entirely). Inverting the rendered colors here
+     * instead keeps the sketch's own drawing logic untouched: white becomes black,
+     * the flip-pattern's black accents become white, and fully-transparent pixels are
+     * unaffected (`invert()` only touches RGB, not alpha). Scoped to `mark` only — the
+     * "squares" variant (/home/) is unaffected.
+     */
+    [data-sketch='mark'] {
+        filter: invert(1);
+    }
+</style>

@@ -1,0 +1,20 @@
+---
+import type { ActionButton as ActionButtonProps, ActionLink as ActionLinkProps } from 'types';
+import ActionButton from '@components/ActionButton.astro';
+import ActionLink from '@components/ActionLink.astro';
+
+interface Props {
+    action: ActionButtonProps | ActionLinkProps;
+    class?: string;
+}
+
+const { action, class: className } = Astro.props;
+
+const componentMap = {
+    actionButton: ActionButton,
+    actionLink: ActionLink
+};
+const Component = componentMap[action._type];
+---
+
+<Component {...action} class={className} />

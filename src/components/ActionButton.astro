@@ -1,0 +1,28 @@
+---
+import { type ActionButton } from 'types';
+
+interface Props extends ActionButton {
+    class?: string;
+}
+
+const { label, ariaLabel, url, theme, class: className } = Astro.props;
+
+const themeClassMap = {
+    primary: 'btn-primary',
+    secondary: 'btn-secondary',
+    accent: 'btn-accent',
+    neutral: 'btn-neutral'
+};
+---
+
+{
+    url ? (
+        <a class:list={['btn', themeClassMap[theme || 'primary'], className]} href={url} aria-label={ariaLabel}>
+            <span>{label}</span>
+        </a>
+    ) : (
+        <button class:list={['btn', themeClassMap[theme || 'primary'], className]} aria-label={ariaLabel}>
+            <span>{label}</span>
+        </button>
+    )
+}

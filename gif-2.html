@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Oscillating Grid — Mark Shape</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #info {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            color: #888;
+            font-family: -apple-system, Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            letter-spacing: 0.02em;
+            pointer-events: none;
+            z-index: 10;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+</head>
+
+<body>
+    <div id="info">move the mouse to drive the slider · grid counts oscillate on their own · drag the handle to grab it
+        directly</div>
+    <script>
+
+        // ---------- tunable parameters ----------
+        const MIN_COLS = 4, MAX_COLS = 16;          // horizontal square count range
+        const MIN_ROWS = 4, MAX_ROWS = 16;          // vertical square count range
+        const COL_FREQ = 0.17;                      // cycles/sec of the horizontal-count oscillator
+        const ROW_FREQ = 0.24;                      // cycles/sec of the vertical-count oscillator (independent)
+
+        const MIN_SIZE_FACTOR = 0.18;               // squares much smaller than their cell -> visible gaps
+        const MAX_SIZE_FACTOR = 2.6;                // squares much larger than their cell -> guaranteed full overlap
+
+        const SLIDER_EASE_PASSIVE = 0.06;           // how eagerly the slider chases the mouse when not grabbed
+        const SLIDER_EASE_DRAGGING = 0.4;           // snappier response while the handle is actively grabbed
+
+        // ---------- the container "mark" ----------
+        // Two overlapping check/V strokes (rounded thick lines), approximating the
+        // reference mark. Coordinates are normalized to a 0..1 box; x1,y1 -> x2,y2
+        // is one thick rounded segment, t is its thickness as a fraction of the
+        // mark's overall size. Left stroke pair = a fairly symmetric "V"; right
+        // stroke pair = a checkmark whose long arm swoops further out and lower.
+        // Tweak these points (or thickness) to nudge the shape closer to a
+        // reference — everything downstream just reads this list.
+        const MARK_STROKES_NORM = [
+            {x1: 0.16, y1: 0.20, x2: 0.42, y2: 0.74, t: 0.15}, // left V — left arm
+            {x1: 0.42, y1: 0.74, x2: 0.64, y2: 0.20, t: 0.15}, // left V — right arm
+            {x1: 0.36, y1: 0.24, x2: 0.58, y2: 0.74, t: 0.15}, // right check — left arm
+            {x1: 0.58, y1: 0.74, x2: 0.86, y2: 0.42, t: 0.15}, // right check — long swooping arm
+        ];
+        const MARK_SIZE_FRAC = 0.72;                // the mark's overall box, as a fraction of min(width,height)
+        const SHOW_GUIDE_OUTLINE = false;           // faint outline of the mark strokes, drawn under the grid — turn on to see the target shape, off to judge the grid alone
+
+        // ---------- state ----------
+        let sliderX;
+        let trackMinX, trackMaxX, trackY;
+        let draggingSlider = false;
+        let t0;
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            rectMode(CENTER);
+            noStroke();
+            strokeCap(ROUND);
+            t0 = millis();
+            layoutSlider();
+            sliderX = trackMinX; // start at the small end
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+            layoutSlider();
+        }
+
+        function layoutSlider() {
+            trackMinX = 60;
+            trackMaxX = width - 60;
+            trackY = height - 46;
+        }
+
+        // Shortest distance from point (px,py) to the segment (x1,y1)-(x2,y2).
+        function distToSegment(px, py, x1, y1, x2, y2) {
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const lenSq = dx * dx + dy * dy;
+            let t = lenSq === 0 ? 0 : ((px - x1) * dx + (py - y1) * dy) / lenSq;
+            t = constrain(t, 0, 1);
+            const projX = x1 + t * dx;
+            const projY = y1 + t * dy;
+            return dist(px, py, projX, projY);
+        }
+
+        // Is point (px,py) within any of the mark's thick rounded strokes (a
+        // "capsule": everything within thickness/2 of the segment)?
+        function pointInStrokes(px, py, strokes) {
+            for (let i = 0; i < strokes.length; i++) {
+                const s = strokes[i];
+                if (distToSegment(px, py, s.x1, s.y1, s.x2, s.y2) <= s.thickness / 2) return true;
+            }
+            return false;
+        }
+
+        function draw() {
+            background(0);
+
+            const t = (millis() - t0) / 1000;
+
+            // The slider's position is "affected by mouse movement": it continuously
+            // eases toward the cursor's x position rather than snapping to it, and
+            // grabbing the handle makes it track more directly.
+            const targetX = constrain(mouseX, trackMinX, trackMaxX);
+            const ease = draggingSlider ? SLIDER_EASE_DRAGGING : SLIDER_EASE_PASSIVE;
+            sliderX = lerp(sliderX, targetX, ease);
+
+            const sizeFactor = map(sliderX, trackMinX, trackMaxX, MIN_SIZE_FACTOR, MAX_SIZE_FACTOR);
+
+            // ---- independent sine oscillators driving the grid's square counts ----
+            const numCols = floor(map(sin(t * COL_FREQ * TWO_PI), -1, 1, MIN_COLS, MAX_COLS + 0.999));
+            const numRows = floor(map(sin(t * ROW_FREQ * TWO_PI + 1.7), -1, 1, MIN_ROWS, MAX_ROWS + 0.999));
+
+            // ---- the container mark, in pixel space ----
+            const markSize = min(width, height) * MARK_SIZE_FRAC;
+            const markLeft = width / 2 - markSize / 2;
+            const markTop = height / 2 - markSize / 2;
+            const toPx = (nx, ny) => [markLeft + nx * markSize, markTop + ny * markSize];
+
+            const strokes = MARK_STROKES_NORM.map(s => {
+                const [x1, y1] = toPx(s.x1, s.y1);
+                const [x2, y2] = toPx(s.x2, s.y2);
+                return {x1, y1, x2, y2, thickness: s.t * markSize};
+            });
+
+            // Bounding box of the mark (strokes + their thickness), used only to lay
+            // the oscillating grid out.
+            let bboxLeft = Infinity, bboxRight = -Infinity, bboxTop = Infinity, bboxBottom = -Infinity;
+            strokes.forEach(s => {
+                const pad = s.thickness / 2;
+                bboxLeft = min(bboxLeft, s.x1 - pad, s.x2 - pad);
+                bboxRight = max(bboxRight, s.x1 + pad, s.x2 + pad);
+                bboxTop = min(bboxTop, s.y1 - pad, s.y2 - pad);
+                bboxBottom = max(bboxBottom, s.y1 + pad, s.y2 + pad);
+            });
+            const bboxWidth = bboxRight - bboxLeft;
+            const bboxHeight = bboxBottom - bboxTop;
+
+            const colSpacing = bboxWidth / numCols;
+            const rowSpacing = bboxHeight / numRows;
+
+            // Size scales off the local cell spacing, so at MAX_SIZE_FACTOR every
+            // square is guaranteed larger than its own cell -> full overlap with
+            // neighbors regardless of how sparse/dense the oscillators make the grid.
+            const squareSize = min(colSpacing, rowSpacing) * sizeFactor;
+
+            // faint outline so the containing mark reads even where no squares land
+            if (SHOW_GUIDE_OUTLINE) {
+                stroke(255, 22);
+                noFill();
+                strokes.forEach(s => {
+                    strokeWeight(s.thickness);
+                    line(s.x1, s.y1, s.x2, s.y2);
+                });
+                noStroke();
+            }
+
+            blendMode(DIFFERENCE);
+            fill(255);
+
+            for (let i = 0; i < numRows; i++) {
+                const cy = bboxTop + rowSpacing * (i + 0.5);
+                for (let j = 0; j < numCols; j++) {
+                    const cx = bboxLeft + colSpacing * (j + 0.5);
+                    if (pointInStrokes(cx, cy, strokes)) {
+                        square(cx, cy, squareSize);
+                    }
+                }
+            }
+
+            blendMode(BLEND);
+            drawSlider(sizeFactor);
+        }
+
+        function drawSlider(sizeFactor) {
+            stroke(90);
+            strokeWeight(1);
+            line(trackMinX, trackY, trackMaxX, trackY);
+            noStroke();
+
+            fill(draggingSlider ? 255 : 230);
+            circle(sliderX, trackY, 14);
+
+            fill(150);
+            textFont('monospace');
+            textSize(11);
+            textAlign(LEFT, CENTER);
+            text('square size  ' + nf(sizeFactor, 1, 2) + '×  (max = full overlap)', trackMinX, trackY + 22);
+        }
+
+        function mousePressed() {
+            if (dist(mouseX, mouseY, sliderX, trackY) < 14) {
+                draggingSlider = true;
+            }
+        }
+
+        function mouseReleased() {
+            draggingSlider = false;
+        }
+    </script>
+</body>
+
+</html>

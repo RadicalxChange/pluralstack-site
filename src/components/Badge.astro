@@ -1,0 +1,20 @@
+---
+import { type Badge } from 'types';
+
+interface Props extends Badge {
+    class?: string;
+}
+
+const { label, theme, class: className } = Astro.props;
+
+const themeClassMap = {
+    primary: 'badge-primary',
+    secondary: 'badge-secondary',
+    accent: 'badge-accent',
+    neutral: 'badge-neutral'
+};
+---
+
+<div class:list={['badge h-auto px-3 py-1 text-xs uppercase tracking-wider', themeClassMap[theme || 'primary'], className]}>
+    <span>{label}</span>
+</div>

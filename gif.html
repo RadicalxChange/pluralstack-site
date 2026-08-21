@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Oscillating Grid — Overlapping Squares</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #000;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    #info {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      color: #888;
+      font-family: -apple-system, Helvetica, Arial, sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      pointer-events: none;
+      z-index: 10;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+</head>
+
+<body>
+  <div id="info">move the mouse to drive the slider · grid counts oscillate on their own · drag the handle to grab it
+    directly</div>
+  <script>
+
+    // ---------- tunable parameters ----------
+    const MIN_COLS = 4, MAX_COLS = 16;          // horizontal square count range
+    const MIN_ROWS = 4, MAX_ROWS = 16;          // vertical square count range
+    const COL_FREQ = 0.17;                      // cycles/sec of the horizontal-count oscillator
+    const ROW_FREQ = 0.24;                      // cycles/sec of the vertical-count oscillator (independent)
+
+    const MIN_SIZE_FACTOR = 0.18;               // squares much smaller than their cell -> visible gaps
+    const MAX_SIZE_FACTOR = 2.6;                // squares much larger than their cell -> guaranteed full overlap
+
+    const SLIDER_EASE_PASSIVE = 0.06;           // how eagerly the slider chases the mouse when not grabbed
+    const SLIDER_EASE_DRAGGING = 0.4;           // snappier response while the handle is actively grabbed
+
+    const CONTAINER_SIZE_FRAC = 0.46;           // each container square's side, as a fraction of min(width,height)
+    const CONTAINER_HOLE_FRAC = 0.6;            // each container square is a hollow frame; hole side, as a fraction of the outer side
+
+    // ---------- state ----------
+    let sliderX;
+    let trackMinX, trackMaxX, trackY;
+    let draggingSlider = false;
+    let t0;
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      rectMode(CENTER);
+      noStroke();
+      t0 = millis();
+      layoutSlider();
+      sliderX = trackMinX; // start at the small end
+    }
+
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+      layoutSlider();
+    }
+
+    function layoutSlider() {
+      trackMinX = 60;
+      trackMaxX = width - 60;
+      trackY = height - 46;
+    }
+
+    // Is point (px, py) inside an axis-aligned square centered at (cx, cy) with
+    // side length `size`?
+    function pointInSquare(px, py, cx, cy, size) {
+      const half = size / 2;
+      return abs(px - cx) <= half && abs(py - cy) <= half;
+    }
+
+    // Is point (px, py) inside a hollow square "frame" (an outer square with a
+    // smaller concentric square hole cut out of its middle)?
+    function pointInFrame(px, py, cx, cy, outerSize, holeSize) {
+      return pointInSquare(px, py, cx, cy, outerSize) && !pointInSquare(px, py, cx, cy, holeSize);
+    }
+
+    // 4 corners of an axis-aligned square, used only to size the bounding box
+    // the oscillating grid is generated over.
+    function squareCorners(cx, cy, size) {
+      const half = size / 2;
+      return [[cx - half, cy - half], [cx + half, cy - half], [cx + half, cy + half], [cx - half, cy + half]];
+    }
+
+    function draw() {
+      background(0);
+
+      const t = (millis() - t0) / 1000;
+
+      // The slider's position is "affected by mouse movement": it continuously
+      // eases toward the cursor's x position rather than snapping to it, and
+      // grabbing the handle makes it track more directly.
+      const targetX = constrain(mouseX, trackMinX, trackMaxX);
+      const ease = draggingSlider ? SLIDER_EASE_DRAGGING : SLIDER_EASE_PASSIVE;
+      sliderX = lerp(sliderX, targetX, ease);
+
+      const sizeFactor = map(sliderX, trackMinX, trackMaxX, MIN_SIZE_FACTOR, MAX_SIZE_FACTOR);
+
+      // ---- independent sine oscillators driving the grid's square counts ----
+      const numCols = floor(map(sin(t * COL_FREQ * TWO_PI), -1, 1, MIN_COLS, MAX_COLS + 0.999));
+      const numRows = floor(map(sin(t * ROW_FREQ * TWO_PI + 1.7), -1, 1, MIN_ROWS, MAX_ROWS + 0.999));
+
+      // ---- the two overlapping container squares ----
+      // Square A sits bottom-left, axis aligned. Square B is the same size and
+      // also axis aligned, positioned so its bottom-left corner lands exactly
+      // on square A's center. Each is a hollow frame (an outer square with a
+      // smaller concentric hole), not a solid square. The grid only draws where
+      // a cell falls inside either frame (their union), so the pattern reads as
+      // living "inside" this two-square outline shape.
+      const containerSize = min(width, height) * CONTAINER_SIZE_FRAC;
+      const holeSize = containerSize * CONTAINER_HOLE_FRAC;
+      const half = containerSize / 2;
+      const centerAx = width / 2 - half / 2;
+      const centerAy = height / 2 + half / 2;
+      const centerBx = centerAx + half; // B's bottom-left corner = A's center
+      const centerBy = centerAy - half;
+
+      // Bounding box of the union, used only to lay the oscillating grid out.
+      const corners = squareCorners(centerAx, centerAy, containerSize)
+        .concat(squareCorners(centerBx, centerBy, containerSize));
+      const bboxLeft = Math.min(...corners.map(p => p[0]));
+      const bboxRight = Math.max(...corners.map(p => p[0]));
+      const bboxTop = Math.min(...corners.map(p => p[1]));
+      const bboxBottom = Math.max(...corners.map(p => p[1]));
+      const bboxWidth = bboxRight - bboxLeft;
+      const bboxHeight = bboxBottom - bboxTop;
+
+      const colSpacing = bboxWidth / numCols;
+      const rowSpacing = bboxHeight / numRows;
+
+      // Size scales off the local cell spacing, so at MAX_SIZE_FACTOR every
+      // square is guaranteed larger than its own cell -> full overlap with
+      // neighbors regardless of how sparse/dense the oscillators make the grid.
+      const squareSize = min(colSpacing, rowSpacing) * sizeFactor;
+
+      // faint outline so the containing frame shape reads even where no squares land
+      stroke(255, 22);
+      strokeWeight(1);
+      noFill();
+      rectMode(CENTER);
+      rect(centerAx, centerAy, containerSize, containerSize);
+      rect(centerAx, centerAy, holeSize, holeSize);
+      rect(centerBx, centerBy, containerSize, containerSize);
+      rect(centerBx, centerBy, holeSize, holeSize);
+      noStroke();
+
+      blendMode(DIFFERENCE);
+      fill(255);
+
+      for (let i = 0; i < numRows; i++) {
+        const cy = bboxTop + rowSpacing * (i + 0.5);
+        for (let j = 0; j < numCols; j++) {
+          const cx = bboxLeft + colSpacing * (j + 0.5);
+          const inside =
+            pointInFrame(cx, cy, centerAx, centerAy, containerSize, holeSize) ||
+            pointInFrame(cx, cy, centerBx, centerBy, containerSize, holeSize);
+          if (inside) {
+            square(cx, cy, squareSize);
+          }
+        }
+      }
+
+      blendMode(BLEND);
+      drawSlider(sizeFactor);
+    }
+
+    function drawSlider(sizeFactor) {
+      stroke(90);
+      strokeWeight(1);
+      line(trackMinX, trackY, trackMaxX, trackY);
+      noStroke();
+
+      fill(draggingSlider ? 255 : 230);
+      circle(sliderX, trackY, 14);
+
+      fill(150);
+      textFont('monospace');
+      textSize(11);
+      textAlign(LEFT, CENTER);
+      text('square size  ' + nf(sizeFactor, 1, 2) + '×  (max = full overlap)', trackMinX, trackY + 22);
+    }
+
+    function mousePressed() {
+      if (dist(mouseX, mouseY, sliderX, trackY) < 14) {
+        draggingSlider = true;
+      }
+    }
+
+    function mouseReleased() {
+      draggingSlider = false;
+    }
+  </script>
+</body>
+
+</html>

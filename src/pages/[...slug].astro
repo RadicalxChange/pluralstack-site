@@ -1,0 +1,53 @@
+---
+import type { Page } from 'types';
+import Layout from '@layouts/Layout.astro';
+import Cards from '@components/Cards.astro';
+import Cta from '@components/Cta.astro';
+import Domain from '@components/Domain.astro';
+import Form from '@components/Form.astro';
+import Hero from '@components/Hero.astro';
+import Logos from '@components/Logos.astro';
+import Testimonials from '@components/Testimonials.astro';
+import { fetchData, getPageById } from '@data/page';
+
+export async function getStaticPaths() {
+    const data = await fetchData();
+    return data.map((page: Page) => {
+        const slug = page.slug.current === '/' ? undefined : page.slug.current;
+        return {
+            params: { slug },
+            props: { id: page._id }
+        };
+    });
+}
+
+const { id } = Astro.props;
+const pages = await getPageById(id);
+const page: Page = pages.length ? pages[0] : null;
+
+const { title, sections, metaTitle, metaDescription, socialImage } = page || {};
+
+const componentMap = {
+    cardsSection: Cards,
+    ctaSection: Cta,
+    domainSection: Domain,
+    formSection: Form,
+    heroSection: Hero,
+    logosSection: Logos,
+    testimonialsSection: Testimonials
+};
+---
+
+{
+    page && (
+        <Layout title={metaTitle ?? title} description={metaDescription} image={socialImage}>
+            <div>
+                {sections?.length &&
+                    sections.map((section) => {
+                        const Component = componentMap[section._type];
+                        return <Component {...section} />;
+                    })}
+            </div>
+        </Layout>
+    )
+}

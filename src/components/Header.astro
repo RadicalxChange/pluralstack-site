@@ -1,0 +1,135 @@
+---
+import { type Header } from 'types';
+import Action from '@components/Action.astro';
+import ResponsiveImage from '@components/ResponsiveImage.astro';
+
+interface Props extends Header {}
+
+const { title, logo, navLinks } = Astro.props;
+---
+
+<nav class="p-4 sm:p-5 nav-bar" data-theme="cyberpunk">
+    <div class="flex items-center justify-between w-full gap-6 mx-auto max-w-7xl">
+        <a class="flex items-center gap-2.5 shrink-0" href="/">
+            {
+                logo?.src && (
+                    /* Explicit 64px source rather than the asset's own 1159px dimensions,
+                       so Astro emits a small file for a ~28px mark. */
+                    <ResponsiveImage _id={logo._id} src={logo.src} width={64} height={64} alt={logo.alt} class="w-7 h-7 sm:w-8 sm:h-8" loading="eager" />
+                )
+            }
+            {title && <span class="text-xl font-bold sm:text-2xl">{title}</span>}
+        </a>
+        {
+            navLinks && navLinks.length > 0 && (
+                <>
+                    <ul class="hidden lg:flex lg:flex-wrap lg:items-center lg:gap-6">
+                        {navLinks.map((item) => (
+                            <li>
+                                <Action
+                                    action={item}
+                                    class:list={[item._type === 'actionLink' ? 'no-underline hover:underline' : 'px-4 py-3 h-auto min-h-0']}
+                                />
+                            </li>
+                        ))}
+                    </ul>
+                    <div class="relative lg:hidden">
+                        <button
+                            class="inline-flex justify-center items-center w-10 h-10 relative z-2 nav-toggle"
+                            aria-label="Open Menu"
+                            aria-expanded="false"
+                            aria-controls="nav-panel"
+                        >
+                            <span class="nav-toggle-icon" />
+                        </button>
+                        <div id="nav-panel" class="nav-panel absolute -top-2 -right-2 z-1 bg-base-100 border border-base-content">
+                            <ul class="flex flex-col px-4 pb-6 pt-14">
+                                {navLinks.map((item) => (
+                                    <li>
+                                        <Action
+                                            action={item}
+                                            class:list={[
+                                                item._type === 'actionLink' ? 'block py-2 no-underline hover:underline' : 'w-full px-4 py-3.5 h-auto min-h-0'
+                                            ]}
+                                        />
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                </>
+            )
+        }
+    </div>
+</nav>
+
+<style>
+    @reference "../styles/globals.css";
+    .nav-bar {
+        border-bottom: 1px solid var(--color-base-300);
+    }
+    .nav-panel {
+        @apply max-w-72 opacity-0 scale-90 origin-top-right invisible;
+        width: calc(100vw - 1rem);
+        transition:
+            transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+            opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+            visibility 0s 0.25s;
+    }
+    .nav-panel.is-visible {
+        @apply scale-100 opacity-100 visible;
+        transition: 0.25s;
+    }
+    .nav-panel li + li:has(.btn),
+    .nav-panel li:has(.btn) + li {
+        @apply mt-4;
+    }
+    .nav-toggle-icon {
+        @apply block relative bg-current rounded transition;
+        width: 1.5rem;
+        height: 0.125rem;
+    }
+    .nav-toggle-icon:before,
+    .nav-toggle-icon:after {
+        @apply block absolute bg-current rounded transition-all;
+        content: '';
+        width: 1.5rem;
+        height: 0.125rem;
+    }
+    .nav-toggle-icon:before {
+        top: -0.5rem;
+    }
+    .nav-toggle-icon:after {
+        top: 0.5rem;
+    }
+    .nav-toggle-icon.is-active {
+        @apply bg-transparent;
+    }
+    .nav-toggle-icon.is-active:before {
+        top: 0;
+        margin-top: -0.5625rem;
+        transform: translateY(0.5rem) rotate(-45deg);
+    }
+    .nav-toggle-icon.is-active:after {
+        top: 0;
+        margin-top: -0.5625rem;
+        transform: translateY(0.5rem) rotate(45deg);
+    }
+</style>
+
+<script>
+    function navToggle() {
+        const nav = document.querySelector('.nav-panel');
+        const navToggleBtn = document.querySelector('.nav-toggle');
+        const navToggleIcon = document.querySelector('.nav-toggle-icon');
+        navToggleBtn?.addEventListener('click', () => {
+            const isMenuExpanded = navToggleBtn.getAttribute('aria-expanded') === 'true';
+            navToggleBtn.setAttribute('aria-expanded', isMenuExpanded ? 'false' : 'true');
+            navToggleBtn.setAttribute('aria-label', isMenuExpanded ? 'Open Menu' : 'Close Menu');
+            navToggleIcon?.classList.toggle('is-active');
+            nav?.classList.toggle('is-visible');
+        });
+    }
+    navToggle();
+    document.addEventListener('astro:after-swap', navToggle);
+</script>
