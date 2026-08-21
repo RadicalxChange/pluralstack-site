@@ -1,5 +1,5 @@
 import { defineConfig } from 'sanity'
-import { deskTool } from 'sanity/desk'
+import { structureTool } from 'sanity/structure'
 import { visionTool } from '@sanity/vision'
 import { schemaTypes } from './schemaTypes'
 import { markdownSchema } from 'sanity-plugin-markdown'
@@ -11,7 +11,7 @@ export default defineConfig({
   projectId: (process.env.SANITY_STUDIO_PROJECT_ID ?? process.env.SANITY_PROJECT_ID) as string,
   dataset: (process.env.SANITY_STUDIO_DATASET ?? process.env.SANITY_DATASET) as string,
 
-  plugins: [deskTool(), visionTool(), markdownSchema()],
+  plugins: [structureTool(), visionTool(), markdownSchema()],
 
   schema: {
     types: schemaTypes,

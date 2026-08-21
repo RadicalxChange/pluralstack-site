@@ -15,12 +15,12 @@
     "sanity"
   ],
   "dependencies": {
-    "@sanity/vision": "^3.23.4",
+    "@sanity/vision": "6.7.0",
     "easymde": "^2.18.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "sanity": "^3.23.4",
-    "sanity-plugin-markdown": "^4.1.2",
+    "sanity": "6.7.0",
+    "sanity-plugin-markdown": "^9.0.12",
     "styled-components": "^6.1.15"
   },
   "devDependencies": {

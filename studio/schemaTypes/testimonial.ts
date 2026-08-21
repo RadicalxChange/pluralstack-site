@@ -1,5 +1,5 @@
 import {defineField, defineType} from 'sanity'
-import {BlockquoteIcon} from '@sanity/icons'
+import {BlockquoteIcon} from '@sanity/icons/Blockquote'
 
 export default defineType({
   name: 'testimonial',

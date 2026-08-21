@@ -1,5 +1,5 @@
 import {defineField, defineType} from 'sanity'
-import {SquareIcon} from '@sanity/icons'
+import {SquareIcon} from '@sanity/icons/Square'
 
 export default defineType({
   name: 'footer',
