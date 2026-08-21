@@ -1,2 +1,13 @@
 [dev]
   targetPort = 3000
+
+[build.environment]
+  # SANITY_DATASET isn't a secret (it's a Sanity dataset name, e.g. "production") — but
+  # Netlify's build-time secrets scanner flags the literal value of every configured env
+  # var wherever it appears in the repo, and "production" is common enough to show up in
+  # unrelated places (.gitignore's .env.production entry, the font LICENSE.txt, every
+  # script that configures the Sanity client with `dataset: 'production'`, etc.). Omit it
+  # from the scan rather than the paths it happens to match, since the false positives
+  # aren't confined to any fixed set of files. SANITY_TOKEN — the value actually worth
+  # protecting — is untouched and still scanned normally.
+  SECRETS_SCAN_OMIT_KEYS = "SANITY_DATASET"
