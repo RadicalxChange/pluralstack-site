@@ -27,7 +27,16 @@ export interface Card {
     body?: string;
     cta?: Array<ActionButton | ActionLink>;
     image?: CustomImage;
-    theme?: 'light' | 'dark' | 'transparent' | 'primary' | 'secondary';
+    theme?:
+        | 'light'
+        | 'dark'
+        | 'transparent'
+        | 'primary'
+        | 'secondary'
+        | 'third-card-bone'
+        | 'accent-blue'
+        | 'accent-green'
+        | 'accent-yellow';
     textAlign?: 'left' | 'center';
     hasBorder?: boolean;
 }
@@ -149,13 +158,27 @@ export interface Person {
 
 export interface Section {
     _type?: string;
-    theme?: 'light' | 'dark' | 'lemonade' | 'cyberpunk';
+    theme?:
+        | 'light'
+        | 'dark'
+        | 'lemonade'
+        | 'cyberpunk'
+        | 'plural-theme'
+        | 'paper-theme'
+        | 'paper-theme-yellow'
+        | 'paper-theme-red'
+        | 'paper-theme-blue';
     backgroundImage?: BackgroundImage;
     width?: 'full' | 'inset';
     /** Adds the same hairline divider used between stacked sections, but along this
      * section's own bottom edge — for a section that's the last one on the page, where
      * there's no following <section> for the normal section+section divider to attach to. */
     dividerAfter?: boolean;
+    /** Overrides the HTML tag used for this section's main heading. Each section
+     * component falls back to its own default (h1 for Hero, h2 for the rest) when unset —
+     * this is only for the rare page where the document outline needs a different level,
+     * e.g. promoting a non-Hero section's heading to h1 on a page with no Hero. */
+    headingLevel?: 'h1' | 'h2' | 'h3';
 }
 
 export interface SiteConfig {

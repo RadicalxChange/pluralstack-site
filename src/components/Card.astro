@@ -19,8 +19,10 @@ const HeadingTag = compactTiles ? 'h4' : 'h3';
 // 'light'/'dark' are full daisyUI themes, applied via `data-theme` (same mechanism as
 // Section's theme). 'primary'/'secondary' aren't themes — there's no daisyUI theme named
 // either — they're the same fixed color-role treatment `.btn-primary`/`.btn-secondary` use
-// (see globals.css), applied here as `.card-primary`/`.card-secondary` instead. 'transparent'
-// (or unset) gets neither, so the card just inherits its ambient section's theme.
+// (see globals.css), applied here as `.card-primary`/`.card-secondary` instead. The three
+// 'accent-*' values are the same idea again, but only a colored top border — background/text
+// stay whatever the ambient section theme gives them. 'transparent' (or unset) gets none of
+// these, so the card just inherits its ambient section's theme untouched.
 const isFullTheme = theme === 'light' || theme === 'dark';
 ---
 
@@ -31,6 +33,10 @@ const isFullTheme = theme === 'light' || theme === 'dark';
         'w-full max-w-2xl',
         theme === 'primary' && 'card-primary',
         theme === 'secondary' && 'card-secondary',
+        theme === 'third-card-bone' && 'card-third-bone',
+        theme === 'accent-blue' && 'card-accent-blue',
+        theme === 'accent-green' && 'card-accent-green',
+        theme === 'accent-yellow' && 'card-accent-yellow',
         className
     ]}
     {...isFullTheme && { 'data-theme': theme }}

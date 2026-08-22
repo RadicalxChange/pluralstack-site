@@ -8,7 +8,7 @@ interface Props extends Header {}
 const { title, logo, navLinks } = Astro.props;
 ---
 
-<nav class="p-4 sm:p-5 nav-bar" data-theme="cyberpunk">
+<nav class="p-4 sm:p-5 nav-bar nav-bar-light" data-theme="cyberpunk">
     <div class="flex items-center justify-between w-full gap-6 mx-auto max-w-7xl">
         <a class="flex items-center gap-2.5 shrink-0" href="/">
             {
@@ -65,8 +65,43 @@ const { title, logo, navLinks } = Astro.props;
 
 <style>
     @reference "../styles/globals.css";
+    /* Structural rule shared by every variant below. Colors are deliberately not
+       set here — each `.nav-bar-*` variant supplies its own background/text/link
+       colors, independent of the cyberpunk theme's own palette (which content
+       editors can still pick for a section). To switch the whole nav's look,
+       swap which variant class is added alongside `.nav-bar` on the <nav> tag
+       above — nothing else needs to change. */
     .nav-bar {
         border-bottom: 1px solid var(--color-base-300);
+    }
+    /* ActionLink.astro hardcodes `text-neutral` on every nav link, which explicitly
+       sets its own color and so doesn't pick up an inherited color from `.nav-bar`
+       (an element's own declared color always wins over an inherited one,
+       regardless of specificity) — so each variant below re-states its link color
+       explicitly too. Scoped to the desktop link row specifically (`.nav-bar > div
+       > ul`, a direct child) rather than the variant class alone, so the mobile
+       dropdown panel's links — same markup, but sitting on that panel's own light
+       background — keep their normal dark color instead of turning illegible.
+       The CTA button is untouched by any variant: .btn-primary sets its own
+       --btn-fg/--btn-color explicitly (see globals.css), so it never inherits
+       this color either way. */
+
+    /* Current look: sage green background, white text/icons/links. */
+    .nav-bar-sage {
+        background-color: #7e9c88;
+        color: #ffffff;
+    }
+    .nav-bar-sage > div > ul :global(a.text-neutral) {
+        color: #ffffff;
+    }
+
+    /* Alternate look: bone background, black text/icons/links. */
+    .nav-bar-light {
+        background-color: #f0efe9;
+        color: #111111;
+    }
+    .nav-bar-light > div > ul :global(a.text-neutral) {
+        color: #111111;
     }
     .nav-panel {
         @apply max-w-72 opacity-0 scale-90 origin-top-right invisible;

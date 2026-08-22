@@ -1,5 +1,5 @@
 import {defineField, defineType} from 'sanity'
-import {SquareIcon} from '@sanity/icons'
+import {SquareIcon} from '@sanity/icons/Square'
 import {SECTION_BASE_FIELDS, SECTION_BASE_GROUPS} from './sectionBase'
 
 export default defineType({

@@ -6,20 +6,21 @@ import Section from '@components/Section.astro';
 
 interface Props extends HeroSection {}
 
-const { heading, subheading, body, cta, outro, sketch, ...rest } = Astro.props;
+const { heading, subheading, body, cta, outro, sketch, headingLevel, ...rest } = Astro.props;
+const HeadingTag = headingLevel || 'h1';
 ---
 
 <Section {...rest} class="text-left !py-16 sm:!py-24">
     {
         heading && (
-            <h1 class="text-[1.594rem] font-black sm:text-[2.55rem] text-balance">
+            <HeadingTag class="text-[1.594rem] font-black sm:text-[2.55rem] text-balance">
                 {heading.split('\n').map((line, i) => (
                     <Fragment>
                         {i > 0 && <br />}
                         {line}
                     </Fragment>
                 ))}
-            </h1>
+            </HeadingTag>
         )
     }
     {

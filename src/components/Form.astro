@@ -5,7 +5,8 @@ import Section from '@components/Section.astro';
 
 interface Props extends FormSection {}
 
-const { heading, body, fields, submitLabel, isConnected, notConnectedNotice, ...rest } = Astro.props;
+const { heading, body, fields, submitLabel, isConnected, notConnectedNotice, headingLevel, ...rest } = Astro.props;
+const HeadingTag = headingLevel || 'h2';
 
 // Until a form backend is chosen, the form renders disabled and posts nowhere. See
 // `isConnected` in studio/schemaTypes/formSection.ts.
@@ -16,9 +17,9 @@ const isDisabled = !isConnected;
     <div class="max-w-xl mx-auto">
         {
             heading && (
-                <h2 class="text-2xl font-black sm:text-4xl text-balance">
+                <HeadingTag class="text-2xl font-black sm:text-4xl text-balance">
                     {heading}
-                </h2>
+                </HeadingTag>
             )
         }
         {body && <div class:list={[heading && 'mt-4', 'max-w-prose markdown']} set:html={marked.parse(body)} />}
