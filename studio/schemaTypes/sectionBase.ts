@@ -24,6 +24,11 @@ export const SECTION_BASE_FIELDS = [
         {title: 'Dark', value: 'dark'},
         {title: 'Lemonade', value: 'lemonade'},
         {title: 'Cyberpunk', value: 'cyberpunk'},
+        {title: 'Plural Theme', value: 'plural-theme'},
+        {title: 'Paper Theme', value: 'paper-theme'},
+        {title: 'Paper Theme (Yellow heading)', value: 'paper-theme-yellow'},
+        {title: 'Paper Theme (Red heading)', value: 'paper-theme-red'},
+        {title: 'Paper Theme (Blue heading)', value: 'paper-theme-blue'},
       ],
     },
     initialValue: 'light',
@@ -48,6 +53,21 @@ export const SECTION_BASE_FIELDS = [
       ],
     },
     initialValue: 'full',
+    group: 'styles',
+  }),
+  defineField({
+    name: 'headingLevel',
+    title: 'Heading Level',
+    description:
+      "Overrides the HTML tag used for this section's main heading (Hero defaults to H1, every other section defaults to H2). Only change this if the page's heading structure needs it — e.g. promoting a section's heading to H1 on a page where no Hero is present. Each page should normally have exactly one H1.",
+    type: 'string',
+    options: {
+      list: [
+        {title: 'H1', value: 'h1'},
+        {title: 'H2', value: 'h2'},
+        {title: 'H3', value: 'h3'},
+      ],
+    },
     group: 'styles',
   }),
   defineField({

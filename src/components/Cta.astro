@@ -6,16 +6,17 @@ import Section from '@components/Section.astro';
 
 interface Props extends CtaSection {}
 
-const { eyebrow, heading, body, cta, ...rest } = Astro.props;
+const { eyebrow, heading, body, cta, headingLevel, ...rest } = Astro.props;
+const HeadingTag = headingLevel || 'h2';
 ---
 
 <Section {...rest} class="text-left">
     {eyebrow && <p class="text-sm font-bold tracking-widest uppercase opacity-60">{eyebrow}</p>}
     {
         heading && (
-            <h2 class:list={[eyebrow && 'mt-3', 'text-2xl font-black sm:text-4xl text-balance']}>
+            <HeadingTag class:list={[eyebrow && 'mt-3', 'text-2xl font-black sm:text-4xl text-balance']}>
                 {heading}
-            </h2>
+            </HeadingTag>
         )
     }
     {body && <div class:list={[heading && 'mt-4', 'max-w-prose markdown']} set:html={marked.parse(body)} />}

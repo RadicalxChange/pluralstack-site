@@ -6,15 +6,16 @@ import Section from '@components/Section.astro';
 
 interface Props extends TestimonialsSection {}
 
-const { heading, body, items, columns, ...rest } = Astro.props;
+const { heading, body, items, columns, headingLevel, ...rest } = Astro.props;
+const HeadingTag = headingLevel || 'h2';
 ---
 
 <Section {...rest} class="text-left">
     {
         heading && (
-            <h2 class="text-2xl font-black sm:text-4xl text-balance">
+            <HeadingTag class="text-2xl font-black sm:text-4xl text-balance">
                 {heading}
-            </h2>
+            </HeadingTag>
         )
     }
     {body && <div class:list={[heading && 'mt-4', 'max-w-prose markdown']} set:html={marked.parse(body)} />}

@@ -5,16 +5,17 @@ import Section from '@components/Section.astro';
 
 interface Props extends DomainSection {}
 
-const { heading, eyebrow, body, examples, ...rest } = Astro.props;
+const { heading, eyebrow, body, examples, headingLevel, ...rest } = Astro.props;
+const HeadingTag = headingLevel || 'h2';
 ---
 
 <Section {...rest}>
     <div class="max-w-4xl">
         {
             heading && (
-                <h2 class="text-xl font-black sm:text-3xl text-balance">
+                <HeadingTag class="text-xl font-black sm:text-3xl text-balance">
                     {heading}
-                </h2>
+                </HeadingTag>
             )
         }
         {eyebrow && <p class:list={[heading && 'mt-2', 'text-sm font-bold tracking-widest uppercase opacity-60']}>{eyebrow}</p>}

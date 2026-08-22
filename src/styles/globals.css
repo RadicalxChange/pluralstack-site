@@ -74,10 +74,10 @@
     --color-accent-content: #f2f2f2;
     --color-neutral: #f2f2f2;
     --color-neutral-content: #111111;
-    --color-base-100: #111111;
-    --color-base-200: #1c1c1c;
-    --color-base-300: #3a3a3a;
-    --color-base-content: #f2f2f2;
+    --color-base-100: #152b21;
+    --color-base-200: #21372d;
+    --color-base-300: #41584d;
+    --color-base-content: #ffffff;
     --radius-selector: 0.125rem;
     --radius-field: 0.25rem;
     --radius-box: 0.25rem;
@@ -127,17 +127,24 @@
 }
 
 /*
- * daisyUI's stock "cyberpunk" theme, copied verbatim from
- * node_modules/daisyui/theme/cyberpunk.css (values unchanged). Not used by default —
- * opt in on any element with `data-theme="cyberpunk"`. Built-in themes are still
- * globally disabled above, so this is the only way to reach it.
+ * daisyUI's stock "cyberpunk" theme, originally copied verbatim from
+ * node_modules/daisyui/theme/cyberpunk.css. Not used by default — opt in on any
+ * element with `data-theme="cyberpunk"`. Built-in themes are still globally
+ * disabled above, so this is the only way to reach it.
+ *
+ * The stock theme's bright yellow (base-100/200/300, plus neutral-content which
+ * was set to the same value so text on the neutral surface matched) has been
+ * swapped for sage green (#7e9c88 converted to oklch), same lightness steps and
+ * chroma/hue relationship as the original three shades. Every other role
+ * (primary/secondary/accent/neutral/info/success/warning/error, radii, border,
+ * depth, noise) is untouched.
  */
 @plugin "daisyui/theme" {
     name: 'cyberpunk';
     color-scheme: light;
-    --color-base-100: oklch(94.51% 0.179 104.32);
-    --color-base-200: oklch(91.51% 0.179 104.32);
-    --color-base-300: oklch(85.51% 0.179 104.32);
+    --color-base-100: oklch(66.40% 0.045 155.82);
+    --color-base-200: oklch(63.40% 0.045 155.82);
+    --color-base-300: oklch(57.40% 0.045 155.82);
     --color-base-content: oklch(0% 0 0);
     --color-primary: oklch(74.22% 0.209 6.35);
     --color-primary-content: oklch(14.844% 0.041 6.35);
@@ -146,7 +153,7 @@
     --color-accent: oklch(71.86% 0.217 310.43);
     --color-accent-content: oklch(14.372% 0.043 310.43);
     --color-neutral: oklch(23.04% 0.065 269.31);
-    --color-neutral-content: oklch(94.51% 0.179 104.32);
+    --color-neutral-content: oklch(66.40% 0.045 155.82);
     --color-info: oklch(72.06% 0.191 231.6);
     --color-info-content: oklch(0% 0 0);
     --color-success: oklch(64.8% 0.15 160);
@@ -166,6 +173,209 @@
 }
 
 /*
+ * Duplicate of "cyberpunk", under its own name — a starting point to customize
+ * independently. Opt in with `data-theme="plural-theme"`.
+ *
+ * Now a dark theme: background is pine green (#152b21 converted to oklch) and
+ * text is white. base-200/300 step *up* in lightness from base-100 (same
+ * direction and rough proportion as the site's own 'dark' theme above),
+ * rather than down as in the light-background themes, since base-100 is now
+ * the darkest surface. `color-scheme` flipped to dark to match.
+ * neutral-content tracks the text color, same pairing as before.
+ */
+@plugin "daisyui/theme" {
+    name: 'plural-theme';
+    color-scheme: dark;
+    --color-base-100: oklch(26.71% 0.034 163.31);
+    --color-base-200: oklch(31.59% 0.034 163.31);
+    --color-base-300: oklch(43.80% 0.034 163.31);
+    --color-base-content: oklch(100% 0 0);
+    --color-primary: oklch(74.22% 0.209 6.35);
+    --color-primary-content: oklch(14.844% 0.041 6.35);
+    --color-secondary: oklch(83.33% 0.184 204.72);
+    --color-secondary-content: oklch(16.666% 0.036 204.72);
+    --color-accent: oklch(71.86% 0.217 310.43);
+    --color-accent-content: oklch(14.372% 0.043 310.43);
+    --color-neutral: oklch(23.04% 0.065 269.31);
+    --color-neutral-content: oklch(100% 0 0);
+    --color-info: oklch(72.06% 0.191 231.6);
+    --color-info-content: oklch(0% 0 0);
+    --color-success: oklch(64.8% 0.15 160);
+    --color-success-content: oklch(0% 0 0);
+    --color-warning: oklch(84.71% 0.199 83.87);
+    --color-warning-content: oklch(0% 0 0);
+    --color-error: oklch(71.76% 0.221 22.18);
+    --color-error-content: oklch(0% 0 0);
+    --radius-selector: 0rem;
+    --radius-field: 0rem;
+    --radius-box: 0rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --depth: 0;
+    --noise: 0;
+}
+
+/*
+ * Second duplicate of "cyberpunk", also under a new name — a separate starting
+ * point to customize independently of "plural-theme" above. Opt in with
+ * `data-theme="paper-theme"`.
+ *
+ * Background swapped again from the plural-theme sage green to "bone"
+ * (#f0efe9 converted to oklch), same lightness-step/chroma/hue relationship
+ * across base-100/200/300 and the matching neutral-content as before.
+ */
+@plugin "daisyui/theme" {
+    name: 'paper-theme';
+    color-scheme: light;
+    --color-base-100: oklch(95.12% 0.008 98.88);
+    --color-base-200: oklch(92.12% 0.008 98.88);
+    --color-base-300: oklch(86.12% 0.008 98.88);
+    --color-base-content: oklch(0% 0 0);
+    --color-primary: oklch(74.22% 0.209 6.35);
+    --color-primary-content: oklch(14.844% 0.041 6.35);
+    --color-secondary: oklch(83.33% 0.184 204.72);
+    --color-secondary-content: oklch(16.666% 0.036 204.72);
+    --color-accent: oklch(71.86% 0.217 310.43);
+    --color-accent-content: oklch(14.372% 0.043 310.43);
+    --color-neutral: oklch(23.04% 0.065 269.31);
+    --color-neutral-content: oklch(95.12% 0.008 98.88);
+    --color-info: oklch(72.06% 0.191 231.6);
+    --color-info-content: oklch(0% 0 0);
+    --color-success: oklch(64.8% 0.15 160);
+    --color-success-content: oklch(0% 0 0);
+    --color-warning: oklch(84.71% 0.199 83.87);
+    --color-warning-content: oklch(0% 0 0);
+    --color-error: oklch(71.76% 0.221 22.18);
+    --color-error-content: oklch(0% 0 0);
+    --radius-selector: 0rem;
+    --radius-field: 0rem;
+    --radius-box: 0rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --depth: 0;
+    --noise: 0;
+}
+
+/*
+ * Three exact duplicates of "paper-theme" (same bone background, same black
+ * body text). paper-theme-red and paper-theme-blue recolor their h1 via a
+ * plain `[data-theme="..."] h1` rule rather than a daisyUI color token, since
+ * there's no separate "heading" role in daisyUI's theme system (headings
+ * otherwise just inherit --color-base-content like the rest of the text).
+ * paper-theme-yellow has no such override — all its headings stay black, same
+ * as the base "paper-theme"; only its secondary card's top border is yellow
+ * (see `.card-secondary` overrides below).
+ */
+@plugin "daisyui/theme" {
+    name: 'paper-theme-yellow';
+    color-scheme: light;
+    --color-base-100: oklch(95.12% 0.008 98.88);
+    --color-base-200: oklch(92.12% 0.008 98.88);
+    --color-base-300: oklch(86.12% 0.008 98.88);
+    --color-base-content: oklch(0% 0 0);
+    --color-primary: oklch(74.22% 0.209 6.35);
+    --color-primary-content: oklch(14.844% 0.041 6.35);
+    --color-secondary: oklch(83.33% 0.184 204.72);
+    --color-secondary-content: oklch(16.666% 0.036 204.72);
+    --color-accent: oklch(71.86% 0.217 310.43);
+    --color-accent-content: oklch(14.372% 0.043 310.43);
+    --color-neutral: oklch(23.04% 0.065 269.31);
+    --color-neutral-content: oklch(95.12% 0.008 98.88);
+    --color-info: oklch(72.06% 0.191 231.6);
+    --color-info-content: oklch(0% 0 0);
+    --color-success: oklch(64.8% 0.15 160);
+    --color-success-content: oklch(0% 0 0);
+    --color-warning: oklch(84.71% 0.199 83.87);
+    --color-warning-content: oklch(0% 0 0);
+    --color-error: oklch(71.76% 0.221 22.18);
+    --color-error-content: oklch(0% 0 0);
+    --radius-selector: 0rem;
+    --radius-field: 0rem;
+    --radius-box: 0rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --depth: 0;
+    --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+    name: 'paper-theme-red';
+    color-scheme: light;
+    --color-base-100: oklch(95.12% 0.008 98.88);
+    --color-base-200: oklch(92.12% 0.008 98.88);
+    --color-base-300: oklch(86.12% 0.008 98.88);
+    --color-base-content: oklch(0% 0 0);
+    --color-primary: oklch(74.22% 0.209 6.35);
+    --color-primary-content: oklch(14.844% 0.041 6.35);
+    --color-secondary: oklch(83.33% 0.184 204.72);
+    --color-secondary-content: oklch(16.666% 0.036 204.72);
+    --color-accent: oklch(71.86% 0.217 310.43);
+    --color-accent-content: oklch(14.372% 0.043 310.43);
+    --color-neutral: oklch(23.04% 0.065 269.31);
+    --color-neutral-content: oklch(95.12% 0.008 98.88);
+    --color-info: oklch(72.06% 0.191 231.6);
+    --color-info-content: oklch(0% 0 0);
+    --color-success: oklch(64.8% 0.15 160);
+    --color-success-content: oklch(0% 0 0);
+    --color-warning: oklch(84.71% 0.199 83.87);
+    --color-warning-content: oklch(0% 0 0);
+    --color-error: oklch(71.76% 0.221 22.18);
+    --color-error-content: oklch(0% 0 0);
+    --radius-selector: 0rem;
+    --radius-field: 0rem;
+    --radius-box: 0rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --depth: 0;
+    --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+    name: 'paper-theme-blue';
+    color-scheme: light;
+    --color-base-100: oklch(95.12% 0.008 98.88);
+    --color-base-200: oklch(92.12% 0.008 98.88);
+    --color-base-300: oklch(86.12% 0.008 98.88);
+    --color-base-content: oklch(0% 0 0);
+    --color-primary: oklch(74.22% 0.209 6.35);
+    --color-primary-content: oklch(14.844% 0.041 6.35);
+    --color-secondary: oklch(83.33% 0.184 204.72);
+    --color-secondary-content: oklch(16.666% 0.036 204.72);
+    --color-accent: oklch(71.86% 0.217 310.43);
+    --color-accent-content: oklch(14.372% 0.043 310.43);
+    --color-neutral: oklch(23.04% 0.065 269.31);
+    --color-neutral-content: oklch(95.12% 0.008 98.88);
+    --color-info: oklch(72.06% 0.191 231.6);
+    --color-info-content: oklch(0% 0 0);
+    --color-success: oklch(64.8% 0.15 160);
+    --color-success-content: oklch(0% 0 0);
+    --color-warning: oklch(84.71% 0.199 83.87);
+    --color-warning-content: oklch(0% 0 0);
+    --color-error: oklch(71.76% 0.221 22.18);
+    --color-error-content: oklch(0% 0 0);
+    --radius-selector: 0rem;
+    --radius-field: 0rem;
+    --radius-box: 0rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --depth: 0;
+    --noise: 0;
+}
+
+[data-theme='paper-theme-red'] h1 {
+    color: #8c1616;
+}
+
+[data-theme='paper-theme-blue'] h1 {
+    color: #1a5c80;
+}
+
+/*
  * Buttons match paragraph typography (IBM Plex Sans, regular weight) instead of
  * daisyUI's bold default, and sit closer to their text: --btn-p is daisyUI's
  * horizontal padding-inline variable (10px, trimmed to 8px below). There's no
@@ -182,17 +392,17 @@
 }
 
 /*
- * Primary: an off-white fill with the same hairline grey outline used for
- * section dividers and card borders (--color-base-300) — daisyUI's default
- * border color tracks the fill itself, so it has to be set explicitly here.
- * Text stays a fixed dark grey rather than following the theme's
- * primary-content token, since the bright fill needs the same dark text in
- * both light and dark mode.
+ * Primary: a yellow fill with white text and a fixed light-grey border — all
+ * three stay constant rather than following the theme's primary/primary-content/
+ * base-300 tokens, so the button looks identical in every theme (previously
+ * the border tracked the ambient theme's --color-base-300, which meant it
+ * changed color from section to section, and from the navbar's own cyberpunk
+ * theme, along with everything else about it).
  */
 .btn-primary {
-    --btn-color: #f2f2f2;
-    --btn-fg: #111111;
-    border-color: var(--color-base-300);
+    --btn-color: #c08a13;
+    --btn-fg: #ffffff;
+    border-color: #cccccc;
 }
 
 /*
@@ -205,21 +415,92 @@
 }
 
 /*
+ * Badge equivalent of .btn-primary above: a fixed color independent of the
+ * ambient section theme's --color-primary, same reasoning. daisyUI's
+ * .badge-primary otherwise just points --badge-color/--badge-fg at the
+ * theme's primary/primary-content, so this overrides those same two
+ * variables rather than background-color/color directly.
+ */
+.badge-primary {
+    --badge-color: #1a5c80;
+    --badge-fg: #ffffff;
+}
+
+/*
  * Card equivalents of .btn-primary/.btn-secondary above, same reasoning: a fixed
  * color-role treatment independent of whatever theme the card's ambient section is in,
  * rather than a card-level theme swap (there's no daisyUI theme actually named "primary").
  * `hasBorder` (Card.astro) still controls whether card-border itself is present; these
  * only set the color-border pairs once it is.
+ *
+ * Primary is "pine green" (#152b21) with bone text; secondary is "bone" (#f0efe9) with
+ * pine green text — an inverse pair, each readable on the other's background.
  */
 .card-primary {
-    background-color: #f2f2f2;
-    color: #111111;
+    background-color: #152b21;
+    color: #f0efe9;
     border-color: var(--color-base-300);
 }
 
 .card-secondary {
-    background-color: transparent;
+    background-color: #f0efe9;
+    color: #152b21;
     border-color: var(--color-base-300);
+    /* Only the top edge is thickened to a 5px accent stripe; left/right/bottom
+       stay at the theme's normal --border thickness (1px). */
+    border-top-width: 5px;
+}
+
+/* Cards with theme set to "Light" get the full daisyUI light theme via
+   `data-theme` (see Card.astro's `isFullTheme`) — this only recolors their top
+   border, leaving thickness at the card's normal 1px border. */
+.card[data-theme='light'] {
+    border-top-color: #164a63;
+}
+
+/* Duplicate of .card-secondary above (same bone background, pine green text,
+   5px top stripe) — only the top stripe's color differs. */
+.card-third-bone {
+    background-color: #f0efe9;
+    color: #152b21;
+    border-color: var(--color-base-300);
+    border-top-width: 5px;
+    border-top-color: #164a63;
+}
+
+/* On paper-theme-red, the secondary card's top accent stripe is the theme's own
+   red instead of the usual --color-base-300 hairline. paper-theme-yellow's is
+   pine green rather than its namesake yellow (deliberate contrast, not a
+   heading-color match like paper-theme-red's). */
+[data-theme='paper-theme-red'] .card-secondary {
+    border-top-color: #8c1616;
+}
+
+[data-theme='paper-theme-yellow'] .card-secondary {
+    border-top-color: #152b21;
+}
+
+/*
+ * Accent-border cards: same 5px top-stripe treatment as `.card-secondary` above,
+ * but leaving background/text to the ambient section theme — for a plain card
+ * that just needs a colored top accent (e.g. one of several cards each marking
+ * a different category). Reuses the same three hex values as the
+ * `.text-accent-*` classes so a category's card border and any inline-colored
+ * text for it stay the same color.
+ */
+.card-accent-blue {
+    border-top-width: 5px;
+    border-top-color: #1f6fb2;
+}
+
+.card-accent-green {
+    border-top-width: 5px;
+    border-top-color: #1f6b33;
+}
+
+.card-accent-yellow {
+    border-top-width: 5px;
+    border-top-color: #c08a13;
 }
 
 /*
@@ -328,6 +609,29 @@ a {
 
 .badge {
     letter-spacing: 0.08em;
+}
+
+/*
+ * Named color utilities for one-off colored phrases inside CMS markdown content
+ * (e.g. `**Technical:**` in a body field) — since markdown itself has no way to
+ * color a specific run of text, an editor wraps the phrase in one of these
+ * classes directly in the field: `<span class="text-accent-blue">...</span>`.
+ * Kept as generic named colors rather than per-use names (e.g. "technical")
+ * so the same handful of classes cover future unrelated phrases too. Add a
+ * new `.text-accent-*` here rather than a hardcoded hex in content — that
+ * keeps every such color defined in exactly one place, same principle as the
+ * theme blocks above.
+ */
+.text-accent-blue {
+    color: #1f6fb2;
+}
+
+.text-accent-green {
+    color: #1f6b33;
+}
+
+.text-accent-yellow {
+    color: #c08a13;
 }
 
 /*
