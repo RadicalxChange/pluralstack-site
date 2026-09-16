@@ -5,12 +5,22 @@ import Section from '@components/Section.astro';
 
 interface Props extends FormSection {}
 
-const { heading, body, fields, submitLabel, isConnected, notConnectedNotice, headingLevel, ...rest } = Astro.props;
+const { heading, body, fields, submitLabel, formName, isConnected, notConnectedNotice, headingLevel, ...rest } = Astro.props;
 const HeadingTag = headingLevel || 'h2';
 
 // Until a form backend is chosen, the form renders disabled and posts nowhere. See
 // `isConnected` in studio/schemaTypes/formSection.ts.
 const isDisabled = !isConnected;
+
+// Netlify Forms: its build bot provisions an endpoint by scanning the *built* static
+// HTML for a <form data-netlify="true" name="...">, which this component renders as
+// long as `formName` is set — independent of `isConnected`/`isDisabled` above, so the
+// endpoint exists in Netlify (ready for its Notifications to be configured) even before
+// the form goes live for real visitors. The hidden `form-name` input is Netlify's own
+// documented belt-and-braces for framework-rendered forms. `bot-field` is Netlify's
+// built-in honeypot — a field real visitors never see or fill in, but simple spam bots
+// often do; Netlify silently drops any submission where it's non-empty.
+const isNetlifyForm = Boolean(formName);
 ---
 
 <Section {...rest}>
@@ -25,7 +35,24 @@ const isDisabled = !isConnected;
         {body && <div class:list={[heading && 'mt-4', 'max-w-prose markdown']} set:html={marked.parse(body)} />}
         {
             fields && fields.length > 0 && (
-                <form class="mt-8 space-y-4" inert={isDisabled}>
+                <form
+                    class="mt-8 space-y-4"
+                    inert={isDisabled}
+                    method={isNetlifyForm ? 'POST' : undefined}
+                    name={formName}
+                    data-netlify={isNetlifyForm ? 'true' : undefined}
+                    data-netlify-honeypot={isNetlifyForm ? 'bot-field' : undefined}
+                >
+                    {isNetlifyForm && <input type="hidden" name="form-name" value={formName} />}
+                    {
+                        isNetlifyForm && (
+                            <p class="hidden">
+                                <label>
+                                    Leave this field blank: <input name="bot-field" tabindex="-1" autocomplete="off" />
+                                </label>
+                            </p>
+                        )
+                    }
                     {fields.map((field) => (
                         <div class="w-full">
                             {field.type === 'checkbox' ? (

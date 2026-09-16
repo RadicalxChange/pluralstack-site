@@ -6,7 +6,7 @@ export default defineType({
   name: 'formSection',
   title: 'Form',
   description:
-    'A form. The fields below describe the form, but nothing is submitted anywhere until a form backend is chosen and wired up.',
+    'A form, submitted to Netlify Forms once "Form backend is connected" is on and "Netlify form name" is set. Until then it renders disabled with a notice.',
   type: 'object',
   icon: SquareIcon,
   groups: SECTION_BASE_GROUPS,
@@ -38,10 +38,18 @@ export default defineType({
       group: 'content',
     }),
     defineField({
+      name: 'formName',
+      title: 'Netlify form name',
+      description:
+        "Identifies this form to Netlify — must be unique across the whole site (two forms sharing a name merge into one in Netlify's dashboard). Netlify's build bot only discovers a form by scanning the built static HTML for this name, so it must be set (and the site redeployed) before \"Form backend is connected\" can do anything. Once submissions exist under a name, changing it starts a new form in Netlify and orphans the old submissions — treat it as fixed after go-live.",
+      type: 'string',
+      group: 'content',
+    }),
+    defineField({
       name: 'isConnected',
       title: 'Form backend is connected',
       description:
-        'Leave off until a form backend is chosen and wired up. While off, the form renders disabled with a notice, so nobody thinks a submission was received.',
+        'Turns on real submission via Netlify Forms (see "Netlify form name" below) — requires that field to be set. Leave off until then: the form renders disabled with a notice, so nobody thinks a submission was received.',
       type: 'boolean',
       initialValue: false,
       group: 'content',

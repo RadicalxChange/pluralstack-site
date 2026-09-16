@@ -43,6 +43,14 @@ export default defineType({
       group: 'content',
     }),
     defineField({
+      name: 'outroIntro',
+      title: 'Outro: intro line',
+      description:
+        'Optional lead-in shown above the outro, left-aligned and unboxed — for a sentence introducing an "Outro: boxed steps" diagram (e.g. "All three must hold at once...") without it becoming one of the boxes itself. Ignored when "Outro: boxed steps" is off.',
+      type: 'markdown',
+      group: 'content',
+    }),
+    defineField({
       name: 'cta',
       title: 'Call-to-action',
       type: 'array',
@@ -69,6 +77,15 @@ export default defineType({
       title: 'Compact tiles',
       description:
         'Renders each item\'s heading as an h4 reserving two lines of height, so a one-line and a two-line heading still line up. For a grid of many short, similarly shaped tiles (e.g. a row of organisation names) rather than general card content.',
+      type: 'boolean',
+      initialValue: false,
+      group: 'styles',
+    }),
+    defineField({
+      name: 'outroBoxed',
+      title: 'Outro: boxed steps',
+      description:
+        'Renders the outro as a centred, vertical stack of bordered boxes instead of plain text — one box per paragraph, with centred text. A paragraph that is just an arrow (↓ →  ← ↑) is left unboxed as a connector between the boxes above and below it. For a short step-by-step progression (e.g. "Foundational ↓ Emergent ↓ Super-emergent") rather than general closing copy.',
       type: 'boolean',
       initialValue: false,
       group: 'styles',

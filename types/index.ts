@@ -9,7 +9,9 @@ export interface ActionButton extends Action {
     theme?: 'primary' | 'secondary' | 'accent' | 'neutral';
 }
 
-export interface ActionLink extends Action {}
+export interface ActionLink extends Action {
+    bold?: boolean;
+}
 
 export interface BackgroundImage {
     image?: CustomImage;
@@ -36,7 +38,8 @@ export interface Card {
         | 'third-card-bone'
         | 'accent-blue'
         | 'accent-green'
-        | 'accent-yellow';
+        | 'accent-yellow'
+        | 'accent-red';
     textAlign?: 'left' | 'center';
     hasBorder?: boolean;
 }
@@ -53,6 +56,13 @@ export interface CardsSection extends Section {
      * a one-line and a two-line heading still line up — for grids of many short, similarly
      * shaped tiles (e.g. a row of organisation names) rather than general card content. */
     compactTiles?: boolean;
+    /** Renders `outro` as a centred, vertical stack of bordered boxes (one per paragraph,
+     * centred text) instead of plain markdown text. A paragraph that's just an arrow glyph
+     * is left unboxed as a connector between the boxes either side of it. */
+    outroBoxed?: boolean;
+    /** Optional lead-in shown above the (boxed) outro, left-aligned and unboxed — a sentence
+     * introducing the diagram without it becoming one of the boxes itself. */
+    outroIntro?: string;
 }
 
 export interface Company {
@@ -103,6 +113,9 @@ export interface FormSection extends Section {
     body?: string;
     fields?: Array<FormField>;
     submitLabel?: string;
+    /** Identifies this form to Netlify Forms — must be unique sitewide. Required for
+     * `isConnected` to actually submit anywhere; see formSection.ts. */
+    formName?: string;
     isConnected?: boolean;
     notConnectedNotice?: string;
 }
@@ -128,6 +141,11 @@ export interface HeroSection extends Section {
      * behind the text — 'squares' is gridSketch.js, 'mark' is gridSketchMark.js. Square size
      * reacts to mouse proximity to a CTA on the page (see ctaProximity.js). Unset renders none. */
     sketch?: 'squares' | 'mark';
+    /** Optional row of cards shown below the call-to-action, inside the hero itself rather
+     * than as a separate CardsSection. */
+    items?: Array<Card>;
+    /** How `items` is laid out. Ignored when there are no items. */
+    columns?: 'one' | 'two' | 'three';
 }
 
 export interface LogosSection extends Section {

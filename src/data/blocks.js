@@ -16,7 +16,7 @@ export const SECTIONS = `{
       "src": image.asset->url
     }
   },
-  _type == "cardsSection" => {
+  _type == "cardsSection" || _type == "heroSection" => {
     items[] {
       ...,
       image ${IMAGE}

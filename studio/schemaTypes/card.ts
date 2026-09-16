@@ -63,6 +63,7 @@ export default defineType({
           {title: 'Accent Border (Blue)', value: 'accent-blue'},
           {title: 'Accent Border (Green)', value: 'accent-green'},
           {title: 'Accent Border (Yellow)', value: 'accent-yellow'},
+          {title: 'Accent Border (Red)', value: 'accent-red'},
         ],
       },
       group: 'styles',

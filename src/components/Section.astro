@@ -54,4 +54,15 @@ const { backgroundImage, theme, width, dividerAfter, class: className } = Astro.
     section + section[data-width='inset'] {
         @apply mt-8 sm:mt-16;
     }
+
+    /* The 'dark' theme's pine green (#152b21, see globals.css) is otherwise a fully
+       solid fill — daisyUI paints every `[data-theme]` surface at 100% opacity. Only
+       overridden for the floating "inset" box (not the full-bleed section theme
+       generally, since nothing else currently sits behind a dark-themed surface for
+       this to blend with), at 90% opacity so the page's own background shows through
+       the box itself slightly, distinct from the fully transparent margins either
+       side of it. */
+    section[data-width='inset'] > [data-theme='dark'] {
+        background-color: color-mix(in srgb, #152b21 90%, transparent);
+    }
 </style>

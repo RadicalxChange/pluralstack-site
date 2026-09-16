@@ -7,8 +7,17 @@ import Section from '@components/Section.astro';
 
 interface Props extends CardsSection {}
 
-const { eyebrow, heading, body, items, columns, outro, cta, compactTiles, headingLevel, ...rest } = Astro.props;
+const { eyebrow, heading, body, items, columns, outro, outroIntro, cta, compactTiles, outroBoxed, headingLevel, ...rest } =
+    Astro.props;
 const HeadingTag = headingLevel || 'h2';
+
+// outroBoxed splits the outro on blank lines (markdown's own paragraph boundary) and
+// boxes each paragraph individually, rather than rendering the whole field as one
+// markdown blob — a paragraph that's just an arrow glyph is a connector, left unboxed,
+// between the boxes either side of it. Only used for short step-by-step progressions
+// (e.g. "Foundational ↓ Emergent ↓ Super-emergent"), not general closing copy.
+const outroBlocks = outroBoxed ? outro?.split(/\n\s*\n/).map((block) => block.trim()) : undefined;
+const isArrow = (block: string) => /^[↓→←↑]+$/.test(block);
 ---
 
 <Section {...rest} class="text-left">
@@ -37,6 +46,7 @@ const HeadingTag = headingLevel || 'h2';
                     <Card
                         {...item}
                         compactTiles={compactTiles}
+                        fullWidth={columns === 'one'}
                         class:list={[
                             columns === 'one'
                                 ? 'basis-full'
@@ -49,7 +59,23 @@ const HeadingTag = headingLevel || 'h2';
             </div>
         )
     }
-    {outro && <div class="mt-8 max-w-prose markdown" set:html={marked.parse(outro)} />}
+    {!outroBoxed && outro && <div class="mt-8 max-w-prose markdown" set:html={marked.parse(outro)} />}
+    {outroBoxed && outroIntro && <div class="mt-8 max-w-prose markdown" set:html={marked.parse(outroIntro)} />}
+    {
+        outroBlocks && (
+            <div class="flex flex-col items-center max-w-md gap-4 mx-auto mt-8">
+                {outroBlocks.map((block) =>
+                    isArrow(block) ? (
+                        <div class="text-2xl leading-none" aria-hidden="true">
+                            {block}
+                        </div>
+                    ) : (
+                        <Card body={block} textAlign="center" class="w-full" />
+                    )
+                )}
+            </div>
+        )
+    }
     {
         cta && cta.length > 0 && (
             <div class="flex flex-wrap items-center justify-start gap-4 mt-8">
