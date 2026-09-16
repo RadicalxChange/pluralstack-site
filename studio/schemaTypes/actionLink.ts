@@ -33,6 +33,14 @@ export default defineType({
       type: 'string',
       group: 'content',
     }),
+    defineField({
+      name: 'bold',
+      title: 'Bold',
+      description: 'Render this link’s text in bold, for emphasis (e.g. a nav bar link).',
+      type: 'boolean',
+      initialValue: false,
+      group: 'content',
+    }),
   ],
   preview: {
     select: {

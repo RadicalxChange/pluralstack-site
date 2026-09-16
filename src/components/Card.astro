@@ -11,10 +11,22 @@ interface Props extends Card {
      * two-line heading still line up) and renders it as an h4 instead of an h3. Opt-in
      * per section, not a general Card behaviour — see `compactTiles` on cardsSection. */
     compactTiles?: boolean;
+    /** Drops the card's own max-w-2xl cap so it fills its container instead — for a
+     * single stacked column (cardsSection `columns: 'one'`) where the cards are meant
+     * to run wide, rather than the narrower width that suits a multi-column grid. */
+    fullWidth?: boolean;
 }
 
-const { badge, heading, body, cta, image, theme, textAlign, hasBorder, compactTiles, class: className } = Astro.props;
+const { badge, heading, body, cta, image, theme, textAlign, hasBorder, compactTiles, fullWidth, class: className } =
+    Astro.props;
 const HeadingTag = compactTiles ? 'h4' : 'h3';
+
+// A "before → after" heading (e.g. "Systemic vulnerability → Infrastructural resilience")
+// gets its lead-in half colored the same red as `.text-accent-red`/`.card-accent-red`,
+// so the reader's eye lands on the problem before the arrow carries it to the fix.
+// Plain headings (no ' → ') render unchanged.
+const arrowParts = heading?.split(' → ');
+const headingHasArrow = arrowParts?.length === 2;
 
 // 'light'/'dark' are full daisyUI themes, applied via `data-theme` (same mechanism as
 // Section's theme). 'primary'/'secondary' aren't themes — there's no daisyUI theme named
@@ -24,25 +36,34 @@ const HeadingTag = compactTiles ? 'h4' : 'h3';
 // stay whatever the ambient section theme gives them. 'transparent' (or unset) gets none of
 // these, so the card just inherits its ambient section's theme untouched.
 const isFullTheme = theme === 'light' || theme === 'dark';
+
+// Center-aligned cards keep the old treatment — a full-width figure banner above the
+// body. Left-aligned cards (e.g. the org logos on "Who's behind this") instead get the
+// image as a small mark next to the heading, since a banner doesn't read well beside
+// left-aligned text.
+const hasImage = image && image.src;
+const showTopFigure = hasImage && textAlign === 'center';
+const showInlineLogo = hasImage && textAlign !== 'center';
 ---
 
 <div
     class:list={[
         'card',
         hasBorder !== false && 'card-border',
-        'w-full max-w-2xl',
+        fullWidth ? 'w-full' : 'w-full max-w-2xl',
         theme === 'primary' && 'card-primary',
         theme === 'secondary' && 'card-secondary',
         theme === 'third-card-bone' && 'card-third-bone',
         theme === 'accent-blue' && 'card-accent-blue',
         theme === 'accent-green' && 'card-accent-green',
         theme === 'accent-yellow' && 'card-accent-yellow',
+        theme === 'accent-red' && 'card-accent-red',
         className
     ]}
     {...isFullTheme && { 'data-theme': theme }}
 >
     {
-        image && image.src && (
+        showTopFigure && (
             <figure>
                 <ResponsiveImage _id={image._id} src={image.src} width={image.dimensions?.width} height={image.dimensions?.height} alt={image.alt} />
             </figure>
@@ -51,22 +72,54 @@ const isFullTheme = theme === 'light' || theme === 'dark';
     <div class:list={['card-body gap-4', textAlign === 'center' ? 'items-center text-center' : 'text-left']}>
         {badge && badge.label && <Badge {...badge} />}
         {
-            heading && (
-                <HeadingTag
-                    class:list={[
-                        'font-black card-title sm:text-2xl text-balance',
-                        // Reserves three lines (the longest heading in this set needs all
-                        // three) rather than matching each heading's own line count — no
-                        // font size makes every heading wrap to the same number of lines
-                        // (their word lengths vary too much), so shorter headings vertically
-                        // centre in the extra space instead. em-based, not a fixed rem value,
-                        // so it still reserves exactly three lines once `sm:text-2xl` bumps
-                        // the font size up at that breakpoint.
-                        compactTiles && 'leading-tight min-h-[3.75em]'
-                    ]}
-                >
-                    {heading}
-                </HeadingTag>
+            (heading || showInlineLogo) && (
+                <div class:list={['flex items-center gap-3', showInlineLogo && 'justify-between']}>
+                    {
+                        heading && (
+                            <HeadingTag
+                                class:list={[
+                                    'font-black card-title text-balance',
+                                    // compactTiles cards (the org-logo tiles) and "before → after"
+                                    // headings both run a size step down from the default
+                                    // sm:text-2xl — the former shares its row with a logo, the
+                                    // latter reads better smaller regardless of column count.
+                                    compactTiles || headingHasArrow ? 'text-base sm:text-lg' : 'sm:text-2xl',
+                                    // Reserves three lines (the longest heading in this set needs all
+                                    // three) rather than matching each heading's own line count — no
+                                    // font size makes every heading wrap to the same number of lines
+                                    // (their word lengths vary too much), so shorter headings vertically
+                                    // centre in the extra space instead. em-based, not a fixed rem value,
+                                    // so it still reserves exactly three lines whatever the active
+                                    // breakpoint's font size is.
+                                    compactTiles && 'leading-tight min-h-[3.75em]'
+                                ]}
+                            >
+                                {headingHasArrow ? (
+                                    <>
+                                        <span class="text-accent-red">{arrowParts[0]}</span> → {arrowParts[1]}
+                                    </>
+                                ) : (
+                                    heading
+                                )}
+                            </HeadingTag>
+                        )
+                    }
+                    {
+                        showInlineLogo && (
+                            // Explicit 64px source rather than the asset's own (much larger)
+                            // dimensions, so Astro emits a small file for a ~32px mark — see
+                            // the same pattern on Header's logo.
+                            <ResponsiveImage
+                                _id={image._id}
+                                src={image.src}
+                                width={64}
+                                height={64}
+                                alt={image.alt}
+                                class="object-contain w-8 h-8 shrink-0"
+                            />
+                        )
+                    }
+                </div>
             )
         }
         {body && <div class="markdown" set:html={marked.parse(body)} />}

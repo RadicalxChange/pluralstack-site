@@ -11,9 +11,13 @@ interface Props {
     addTitleSuffix?: boolean;
     description?: string;
     image?: CustomImage;
+    // When set, the header + page content are constrained to 90dvh (instead of their
+    // natural height) so the footer — kept outside this wrapper, in normal flow right
+    // after it — peeks in below the fold rather than trailing off past a full screen.
+    fullHeightHero?: boolean;
 }
 
-const { addTitleSuffix, description, image } = Astro.props;
+const { addTitleSuffix, description, image, fullHeightHero } = Astro.props;
 
 const configData: SiteConfig = (await fetchData()) || {};
 const titleSuffix = configData.titleSuffix && addTitleSuffix !== false ? configData.titleSuffix : undefined;
@@ -76,8 +80,10 @@ function formatCanonicalURL(url: string | URL) {
         {resolvedImage?.src && <meta property="twitter:image" content={resolvedImage.src} />}
     </head>
     <body class="antialiased">
-        <Header {...configData.header} />
-        <slot />
+        <div class:list={[fullHeightHero && 'min-h-[90dvh] flex flex-col']}>
+            <Header {...configData.header} />
+            <slot />
+        </div>
         <Footer {...configData.footer} />
     </body>
 </html>

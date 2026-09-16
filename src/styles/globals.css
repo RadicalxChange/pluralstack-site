@@ -434,10 +434,12 @@
  * only set the color-border pairs once it is.
  *
  * Primary is "pine green" (#152b21) with bone text; secondary is "bone" (#f0efe9) with
- * pine green text — an inverse pair, each readable on the other's background.
+ * pine green text — an inverse pair, each readable on the other's background. Primary's
+ * fill is at 90% opacity (color-mix against whatever's behind) rather than the flat hex,
+ * so the ambient section's own background shows through it slightly.
  */
 .card-primary {
-    background-color: #152b21;
+    background-color: color-mix(in srgb, #152b21 90%, transparent);
     color: #f0efe9;
     border-color: var(--color-base-300);
 }
@@ -484,9 +486,10 @@
  * Accent-border cards: same 5px top-stripe treatment as `.card-secondary` above,
  * but leaving background/text to the ambient section theme — for a plain card
  * that just needs a colored top accent (e.g. one of several cards each marking
- * a different category). Reuses the same three hex values as the
- * `.text-accent-*` classes so a category's card border and any inline-colored
- * text for it stay the same color.
+ * a different category). Reuses the same hex values as the `.text-accent-*`
+ * classes so a category's card border and any inline-colored text for it stay
+ * the same color. Red reuses paper-theme-red's own hex (see its `h1` and
+ * `.card-secondary` rules above) rather than introducing a new one.
  */
 .card-accent-blue {
     border-top-width: 5px;
@@ -501,6 +504,11 @@
 .card-accent-yellow {
     border-top-width: 5px;
     border-top-color: #c08a13;
+}
+
+.card-accent-red {
+    border-top-width: 5px;
+    border-top-color: #8c1616;
 }
 
 /*
@@ -632,6 +640,10 @@ a {
 
 .text-accent-yellow {
     color: #c08a13;
+}
+
+.text-accent-red {
+    color: #8c1616;
 }
 
 /*

@@ -39,5 +39,9 @@
     "printWidth": 100,
     "bracketSpacing": false,
     "singleQuote": true
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "fsevents@2.3.3": true
   }
 }

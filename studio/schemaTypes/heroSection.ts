@@ -45,6 +45,29 @@ export default defineType({
       group: 'content',
     }),
     defineField({
+      name: 'items',
+      title: 'Cards',
+      description: 'Optional row of cards shown below the call-to-action, inside the hero itself rather than as a separate Cards section.',
+      type: 'array',
+      of: [{type: 'card'}],
+      group: 'content',
+    }),
+    defineField({
+      name: 'columns',
+      title: 'Columns',
+      description: 'How the cards above are laid out. Ignored if there are no cards.',
+      type: 'string',
+      options: {
+        list: [
+          {title: '1', value: 'one'},
+          {title: '2', value: 'two'},
+          {title: '3', value: 'three'},
+        ],
+      },
+      initialValue: 'two',
+      group: 'styles',
+    }),
+    defineField({
       name: 'sketch',
       title: 'Grid sketch',
       description:

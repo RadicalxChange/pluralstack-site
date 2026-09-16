@@ -2,11 +2,12 @@
 import { marked } from 'marked';
 import { type HeroSection } from 'types';
 import Action from '@components/Action.astro';
+import Card from '@components/Card.astro';
 import Section from '@components/Section.astro';
 
 interface Props extends HeroSection {}
 
-const { heading, subheading, body, cta, outro, sketch, headingLevel, ...rest } = Astro.props;
+const { heading, subheading, body, cta, outro, items, columns, sketch, headingLevel, ...rest } = Astro.props;
 const HeadingTag = headingLevel || 'h1';
 ---
 
@@ -43,15 +44,36 @@ const HeadingTag = headingLevel || 'h1';
             </div>
         )
     }
+    {
+        items && items.length > 0 && (
+            // Left-justified (not centred, unlike Cards.astro's standalone grid) to match
+            // the hero's own left-aligned text and CTAs — this is the same items grid moved
+            // in from a separate CardsSection, now living inside the hero itself.
+            <div class:list={[(heading || body || (cta && cta.length > 0)) && 'mt-8', 'flex flex-wrap justify-start gap-8']}>
+                {items.map((item) => (
+                    <Card
+                        {...item}
+                        class:list={[
+                            columns === 'one'
+                                ? 'basis-full'
+                                : columns === 'three'
+                                  ? 'basis-full md:basis-[calc(33.333%-1.334rem)]'
+                                  : 'basis-full md:basis-[calc(50%-1rem)]'
+                        ]}
+                    />
+                ))}
+            </div>
+        )
+    }
     {outro && <div class="mt-6 text-sm opacity-70 max-w-prose markdown" set:html={marked.parse(outro)} />}
     {
-        // p5 grid sketch (variant chosen by the `sketch` field), 40% opacity, in Section's
+        // p5 grid sketch (variant chosen by the `sketch` field), 30% opacity, in Section's
         // right-panel slot — full-bleed behind the text column (see Section.astro),
         // transparent canvas, graphic anchored to the right side. Purely decorative: no
         // pointer-events set here, so it never intercepts clicks meant for the CTAs above.
         sketch && (
             <Fragment slot="right-panel">
-                <div id="hero-sketch" class="w-full h-full opacity-40" data-sketch={sketch} />
+                <div id="hero-sketch" class="w-full h-full opacity-30" data-sketch={sketch} />
                 <script>
                     import p5 from 'p5';
                     import { gridSketch } from '@scripts/gridSketch';
