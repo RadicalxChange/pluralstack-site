@@ -69,7 +69,17 @@ const showInlineLogo = hasImage && textAlign !== 'center';
             </figure>
         )
     }
-    <div class:list={['card-body gap-4', textAlign === 'center' ? 'items-center text-center' : 'text-left']}>
+    <div
+        class:list={[
+            'card-body gap-4',
+            textAlign === 'center' ? 'items-center text-center' : 'text-left',
+            // These heading-only cards (no body/cta/badge) just carry a short
+            // "before → after" phrase — daisyUI's default 1.5rem card padding is
+            // sized for a fuller card (heading + paragraph + actions) and reads as
+            // empty margin around one or two short lines of text.
+            headingHasArrow && '!p-4'
+        ]}
+    >
         {badge && badge.label && <Badge {...badge} />}
         {
             (heading || showInlineLogo) && (
@@ -95,9 +105,27 @@ const showInlineLogo = hasImage && textAlign !== 'center';
                                 ]}
                             >
                                 {headingHasArrow ? (
-                                    <>
-                                        <span class="text-accent-red">{arrowParts[0]}</span> → {arrowParts[1]}
-                                    </>
+                                    // Three separate blocks (before/arrow/after), not one run of
+                                    // inline text — at narrow widths a single wrapped heading let
+                                    // the arrow land mid-phrase (e.g. after "vulnerability" wraps
+                                    // to its own line), stranding it between unrelated line breaks
+                                    // instead of cleanly separating the two phrases.
+                                    //
+                                    // Row-vs-column is decided by whether "before → after" actually
+                                    // fits on one line at this card's own width (see the script
+                                    // below), not a fixed viewport breakpoint — the three phrases
+                                    // vary a lot in length, so a fixed cutoff either stacks phrases
+                                    // short enough to share a line, or crams long ones that don't
+                                    // fit. Starts stacked (always safe, never overflows) and the
+                                    // script upgrades to a row once it measures room for one; the
+                                    // arrow rotates to point down while stacked, right in a row.
+                                    <span class="arrow-heading" data-arrow-heading>
+                                        <span class="text-accent-red">{arrowParts[0]}</span>
+                                        <span aria-hidden="true" class="arrow-heading-glyph">
+                                            →
+                                        </span>
+                                        <span>{arrowParts[1]}</span>
+                                    </span>
                                 ) : (
                                     heading
                                 )}
@@ -137,3 +165,83 @@ const showInlineLogo = hasImage && textAlign !== 'center';
         }
     </div>
 </div>
+
+<style>
+    /* Safe default (no JS, or before the script below runs): stacked, arrow
+       pointing down — this never overflows, regardless of phrase length or card
+       width. `.is-row` is only ever added once the script has actually measured
+       that the row fits. */
+    .arrow-heading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+    }
+    .arrow-heading.is-row {
+        flex-direction: row;
+        align-items: baseline;
+        gap: 0.5rem;
+    }
+    .arrow-heading.is-row span {
+        white-space: nowrap;
+    }
+    /* Single glyph, rotated — rather than swapping in a second arrow character —
+       so pointing down (stacked) vs. right (row) is one property, not two glyphs
+       kept in sync. */
+    .arrow-heading-glyph {
+        display: inline-block;
+        transform: rotate(90deg);
+    }
+    .arrow-heading.is-row .arrow-heading-glyph {
+        transform: none;
+    }
+</style>
+
+<script>
+    // Row-vs-column for `.arrow-heading` is decided by whether "before → after"
+    // actually fits on one line, not a fixed viewport breakpoint — see the comment
+    // above `.arrow-heading` in Card.astro. Cards sharing a section (e.g. the three
+    // "why" cards on the paper page) are grouped and switch together, all-or-nothing:
+    // if even the longest phrase in the group wouldn't fit, none of them go to a
+    // row, so siblings never mismatch (one in a row, another still stacked).
+    function syncArrowHeadings() {
+        const elements = [...document.querySelectorAll('[data-arrow-heading]')].filter((el) => !el.dataset.arrowHeadingReady);
+        if (!elements.length) return;
+        elements.forEach((el) => (el.dataset.arrowHeadingReady = 'true'));
+
+        const groups = new Map();
+        elements.forEach((el) => {
+            // Cards sharing a section are siblings under the same grid/list
+            // container — grouping by that container (rather than, say, the whole
+            // page) keeps unrelated Cards sections elsewhere syncing independently.
+            const groupKey = el.closest('.card')?.parentElement;
+            if (!groupKey) return;
+            if (!groups.has(groupKey)) groups.set(groupKey, []);
+            groups.get(groupKey).push(el);
+        });
+
+        groups.forEach((group) => {
+            // Each phrase's own natural (single-line, unwrapped) width — measured
+            // once by briefly switching every member to a row, since it depends
+            // only on text/font, never on how much room is currently available.
+            group.forEach((el) => el.classList.add('is-row'));
+            const naturalWidths = group.map((el) => el.scrollWidth);
+
+            const sync = () => {
+                const fitsAll = group.every((el, i) => {
+                    const cardBody = el.closest('.card-body');
+                    const style = getComputedStyle(cardBody);
+                    const available = cardBody.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+                    return naturalWidths[i] <= available;
+                });
+                group.forEach((el) => el.classList.toggle('is-row', fitsAll));
+            };
+            sync();
+            const resizeObserver = new ResizeObserver(sync);
+            group.forEach((el) => resizeObserver.observe(el.closest('.card-body')));
+        });
+    }
+    syncArrowHeadings();
+    document.addEventListener('astro:after-swap', syncArrowHeadings);
+</script>

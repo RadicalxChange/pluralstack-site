@@ -583,6 +583,36 @@ section[data-divider-after='true']::after {
     }
 }
 
+/*
+ * Groups a heading-only cardsSection with the run of domainSection "pillars"
+ * that follow it (e.g. "Pressing domains" + DPI/Civic Tech/AI/Social Media on
+ * /activities/) into one continuous visual block, instead of each pillar
+ * reading as its own independent page section. Removes the divider and
+ * collapses the doubled top+bottom padding between these specific adjacent
+ * sections down to one deliberate gap; the normal divider/spacing is
+ * untouched immediately before and after the group, so the cluster still
+ * reads as clearly set off from whatever comes before/after it.
+ */
+section:has(+ section[data-section-type='domainSection']) {
+    padding-bottom: 0;
+}
+section[data-section-type='cardsSection'] + section[data-section-type='domainSection'],
+section[data-section-type='domainSection'] + section[data-section-type='domainSection'] {
+    padding-top: 0;
+    margin-top: 2rem;
+}
+section[data-section-type='cardsSection'] + section[data-section-type='domainSection']::before,
+section[data-section-type='domainSection'] + section[data-section-type='domainSection']::before {
+    content: none;
+}
+
+@media (width >= 40rem) {
+    section[data-section-type='cardsSection'] + section[data-section-type='domainSection'],
+    section[data-section-type='domainSection'] + section[data-section-type='domainSection'] {
+        margin-top: 4rem;
+    }
+}
+
 a {
     text-decoration-thickness: 1px;
     text-underline-offset: 0.2em;

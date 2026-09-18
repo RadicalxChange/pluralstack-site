@@ -73,64 +73,95 @@ const HeadingTag = headingLevel || 'h1';
         // pointer-events set here, so it never intercepts clicks meant for the CTAs above.
         sketch && (
             <Fragment slot="right-panel">
-                <div id="hero-sketch" class="w-full h-full opacity-30" data-sketch={sketch} />
+                <div id="hero-sketch" class="hidden w-full h-full opacity-30 sm:block" data-sketch={sketch} />
                 <script>
-                    import p5 from 'p5';
-                    import { gridSketch } from '@scripts/gridSketch';
-                    import { gridSketchMark } from '@scripts/gridSketchMark';
-
                     const container = document.getElementById('hero-sketch');
                     if (container) {
-                        // "Squares" reacts to proximity to the hero's own CTAs (`.hero-ctas`,
-                        // a sibling of this canvas's wrapper under the same <section> — see
-                        // Section.astro) plus the nav bar's CTA (`.nav-bar .btn`, see
-                        // Header.astro). `isVisible` skips whichever nav rendering (desktop bar
-                        // vs. mobile panel) isn't actually on screen at the current breakpoint/
-                        // menu state — both exist in the DOM at once, but a `display:none` or
-                        // `visibility:hidden` copy would otherwise still report a stale rect.
-                        const isVisible = (el) => {
-                            const style = getComputedStyle(el);
-                            if (style.visibility === 'hidden' || style.display === 'none') return false;
-                            const rect = el.getBoundingClientRect();
-                            return rect.width > 0 && rect.height > 0;
-                        };
-                        const getInfluenceRects = () =>
-                            [...document.querySelectorAll('.hero-ctas > *, .nav-bar .btn')].filter(isVisible).map((el) => el.getBoundingClientRect());
-
-                        // "Mark" reacts to mouseY against a vertical axis twice the hero's own
-                        // height, centered on the hero's vertical midpoint — since a page using
-                        // this variant may have too few (or no) CTAs for CTA-proximity to read
-                        // well. The container already fills the <section> exactly (see
-                        // Section.astro's right-panel slot), so its own rect is the hero's rect.
-                        const getAxis = () => {
-                            const rect = container.getBoundingClientRect();
-                            return { centerY: rect.top + rect.height / 2, halfHeight: rect.height };
-                        };
-
-                        // Which sketch variant to draw, and which of the two dependencies above
-                        // it gets — see the `sketch` field on heroSection.ts. Falls back to
-                        // "Squares" for any unrecognised/legacy value.
-                        const sketchRunners = {
-                            squares: (p) => gridSketch(p, container, getInfluenceRects),
-                            mark: (p) => gridSketchMark(p, container, getAxis)
-                        };
-                        const runSketch = sketchRunners[container.dataset.sketch] || sketchRunners.squares;
-
-                        // Guards against a transient 0×0 layout on first paint — calling
-                        // `createCanvas(0, 0)` is a mistake p5 never recovers from even once
-                        // the container gets its real size. Deferring the initial `new p5(...)`
-                        // to the first non-zero size (rather than firing it eagerly and relying
-                        // on `updateSize()` to fix it up after the fact) sidesteps that.
+                        // Purely decorative and tuned for the two-column desktop layout (see
+                        // ANCHOR_X_FRAC in gridSketch.js) — below `sm` the hero collapses to a
+                        // single text column with no room for it, so p5 and the sketch modules
+                        // are dynamically imported only once the viewport actually matches,
+                        // rather than shipping/parsing that JS on every mobile page load.
+                        const mq = window.matchMedia('(min-width: 640px)');
                         let instance = null;
-                        new ResizeObserver((entries) => {
-                            const { width, height } = entries[0].contentRect;
-                            if (width === 0 || height === 0) return;
-                            if (instance) {
-                                instance.updateSize();
-                            } else {
-                                instance = new p5(runSketch, container);
-                            }
-                        }).observe(container);
+                        let observer = null;
+
+                        const teardown = () => {
+                            observer?.disconnect();
+                            observer = null;
+                            instance?.remove();
+                            instance = null;
+                        };
+
+                        const setup = async () => {
+                            if (instance) return;
+                            const [{ default: p5 }, { gridSketch }, { gridSketchMark }] = await Promise.all([
+                                import('p5'),
+                                import('@scripts/gridSketch'),
+                                import('@scripts/gridSketchMark')
+                            ]);
+
+                            // "Squares" reacts to proximity to the hero's own CTAs (`.hero-ctas`,
+                            // a sibling of this canvas's wrapper under the same <section> — see
+                            // Section.astro) plus the nav bar's CTA (`.nav-bar .btn`, see
+                            // Header.astro). `isVisible` skips whichever nav rendering (desktop
+                            // bar vs. mobile panel) isn't actually on screen at the current
+                            // breakpoint/menu state — both exist in the DOM at once, but a
+                            // `display:none` or `visibility:hidden` copy would otherwise still
+                            // report a stale rect.
+                            const isVisible = (el) => {
+                                const style = getComputedStyle(el);
+                                if (style.visibility === 'hidden' || style.display === 'none') return false;
+                                const rect = el.getBoundingClientRect();
+                                return rect.width > 0 && rect.height > 0;
+                            };
+                            const getInfluenceRects = () =>
+                                [...document.querySelectorAll('.hero-ctas > *, .nav-bar .btn')].filter(isVisible).map((el) => el.getBoundingClientRect());
+
+                            // "Mark" reacts to mouseY against a vertical axis twice the hero's
+                            // own height, centered on the hero's vertical midpoint — since a
+                            // page using this variant may have too few (or no) CTAs for
+                            // CTA-proximity to read well. The container already fills the
+                            // <section> exactly (see Section.astro's right-panel slot), so its
+                            // own rect is the hero's rect.
+                            const getAxis = () => {
+                                const rect = container.getBoundingClientRect();
+                                return { centerY: rect.top + rect.height / 2, halfHeight: rect.height };
+                            };
+
+                            // Which sketch variant to draw, and which of the two dependencies
+                            // above it gets — see the `sketch` field on heroSection.ts. Falls
+                            // back to "Squares" for any unrecognised/legacy value.
+                            const sketchRunners = {
+                                squares: (p) => gridSketch(p, container, getInfluenceRects),
+                                mark: (p) => gridSketchMark(p, container, getAxis)
+                            };
+                            const runSketch = sketchRunners[container.dataset.sketch] || sketchRunners.squares;
+
+                            // Guards against a transient 0×0 layout on first paint — calling
+                            // `createCanvas(0, 0)` is a mistake p5 never recovers from even once
+                            // the container gets its real size. Deferring the initial
+                            // `new p5(...)` to the first non-zero size (rather than firing it
+                            // eagerly and relying on `updateSize()` to fix it up after the fact)
+                            // sidesteps that.
+                            observer = new ResizeObserver((entries) => {
+                                const { width, height } = entries[0].contentRect;
+                                if (width === 0 || height === 0) return;
+                                if (instance) {
+                                    instance.updateSize();
+                                } else {
+                                    instance = new p5(runSketch, container);
+                                }
+                            });
+                            observer.observe(container);
+                        };
+
+                        // Covers not just the initial load but also crossing the breakpoint
+                        // afterwards — e.g. rotating a phone to landscape, or resizing a
+                        // desktop window down past it and back up.
+                        const sync = () => (mq.matches ? setup() : teardown());
+                        sync();
+                        mq.addEventListener('change', sync);
                     }
                 </script>
             </Fragment>
