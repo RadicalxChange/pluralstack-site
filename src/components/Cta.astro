@@ -1,0 +1,32 @@
+---
+import { marked } from 'marked';
+import { type CtaSection } from 'types';
+import Action from '@components/Action.astro';
+import Section from '@components/Section.astro';
+
+interface Props extends CtaSection {}
+
+const { eyebrow, heading, body, cta, headingLevel, ...rest } = Astro.props;
+const HeadingTag = headingLevel || 'h2';
+---
+
+<Section {...rest} class="text-left">
+    {eyebrow && <p class="text-sm font-bold tracking-widest uppercase opacity-60">{eyebrow}</p>}
+    {
+        heading && (
+            <HeadingTag class:list={[eyebrow && 'mt-3', 'text-2xl font-black sm:text-4xl text-balance']}>
+                {heading}
+            </HeadingTag>
+        )
+    }
+    {body && <div class:list={[heading && 'mt-4', 'max-w-prose markdown']} set:html={marked.parse(body)} />}
+    {
+        cta && cta.length > 0 && (
+            <div class:list={[(heading || body) && 'mt-8', 'flex flex-wrap items-center justify-start gap-4']}>
+                {cta.map((item) => (
+                    <Action action={item} class:list={[item._type === 'actionLink' && 'link-underline']} />
+                ))}
+            </div>
+        )
+    }
+</Section>

@@ -1,0 +1,189 @@
+---
+import { type Header } from 'types';
+import Action from '@components/Action.astro';
+import ResponsiveImage from '@components/ResponsiveImage.astro';
+
+interface Props extends Header {}
+
+const { title, logo, navLinks } = Astro.props;
+---
+
+<nav class="p-4 sm:p-5 nav-bar nav-bar-light" data-theme="cyberpunk">
+    <div class="flex items-center justify-between w-full gap-6 mx-auto max-w-7xl">
+        <a class="flex items-center gap-2.5 shrink-0" href="/">
+            {
+                logo?.src && (
+                    /* Explicit 64px source rather than the asset's own 1159px dimensions,
+                       so Astro emits a small file for a ~28px mark. */
+                    <ResponsiveImage _id={logo._id} src={logo.src} width={64} height={64} alt={logo.alt} class="w-7 h-7 sm:w-8 sm:h-8" loading="eager" />
+                )
+            }
+            {title && <span class="text-xl font-bold sm:text-2xl">{title}</span>}
+        </a>
+        {
+            navLinks && navLinks.length > 0 && (
+                <>
+                    <ul class="hidden lg:flex lg:flex-wrap lg:items-center lg:gap-6">
+                        {navLinks.map((item) => (
+                            <li>
+                                <Action
+                                    action={item}
+                                    class:list={[item._type === 'actionLink' ? 'no-underline hover:underline' : undefined]}
+                                />
+                            </li>
+                        ))}
+                    </ul>
+                    <div class="relative lg:hidden">
+                        <button
+                            class="inline-flex justify-center items-center w-6 h-6 relative z-2 nav-toggle"
+                            aria-label="Open Menu"
+                            aria-expanded="false"
+                            aria-controls="nav-panel"
+                        >
+                            <span class="nav-toggle-icon" />
+                        </button>
+                        <div id="nav-panel" class="nav-panel absolute -top-2 -right-2 z-1 rounded-box">
+                            <ul class="flex flex-col px-4 pb-6 pt-12">
+                                {navLinks.map((item) => (
+                                    <li>
+                                        <Action
+                                            action={item}
+                                            class:list={[item._type === 'actionLink' ? 'block py-2 no-underline hover:underline' : undefined]}
+                                        />
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                </>
+            )
+        }
+    </div>
+</nav>
+
+<style>
+    @reference "../styles/globals.css";
+    /* Structural rule shared by every variant below. Colors are deliberately not
+       set here — each `.nav-bar-*` variant supplies its own background/text/link
+       colors, independent of the cyberpunk theme's own palette (which content
+       editors can still pick for a section). To switch the whole nav's look,
+       swap which variant class is added alongside `.nav-bar` on the <nav> tag
+       above — nothing else needs to change. */
+    .nav-bar {
+        border-bottom: 1px solid var(--color-base-300);
+    }
+    /* ActionLink.astro hardcodes `text-neutral` on every nav link, which explicitly
+       sets its own color and so doesn't pick up an inherited color from `.nav-bar`
+       (an element's own declared color always wins over an inherited one,
+       regardless of specificity) — so each variant below re-states its link color
+       explicitly too. Scoped to the desktop link row specifically (`.nav-bar > div
+       > ul`, a direct child) rather than the variant class alone, so the mobile
+       dropdown panel's links — same markup, but sitting on that panel's own light
+       background — keep their normal dark color instead of turning illegible.
+       The CTA button is untouched by any variant: .btn-primary sets its own
+       --btn-fg/--btn-color explicitly (see globals.css), so it never inherits
+       this color either way. */
+
+    /* Current look: sage green background, white text/icons/links. */
+    .nav-bar-sage {
+        background-color: #7e9c88;
+        color: #ffffff;
+    }
+    .nav-bar-sage > div > ul :global(a.text-neutral) {
+        color: #ffffff;
+    }
+
+    /* Alternate look: bone background, black text/icons/links. */
+    .nav-bar-light {
+        background-color: #f0efe9;
+        color: #111111;
+    }
+    .nav-bar-light > div > ul :global(a.text-neutral) {
+        color: #111111;
+    }
+    /* Fixed bone/black colors rather than the ambient `data-theme="cyberpunk"`
+       tokens the panel would otherwise inherit as a descendant of `.nav-bar`
+       (`bg-base-100`/`border-base-content` resolved to cyberpunk's green/black,
+       not this nav's own bone-and-black look) — same reasoning as .btn-primary
+       above: a fixed look independent of ambient theme. Hairline border and
+       barely-there corners match the rest of the site's flat, minimal chrome
+       (see the "light" theme's --radius-box/--border in globals.css) instead of
+       the heavier solid-black box this replaces. */
+    .nav-panel {
+        @apply opacity-0 scale-90 origin-top-right invisible;
+        width: max-content;
+        max-width: calc(100vw - 1rem);
+        background-color: #f0efe9;
+        border: 1px solid #cccccc;
+        color: #111111;
+        transition:
+            transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+            opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+            visibility 0s 0.25s;
+    }
+    .nav-panel.is-visible {
+        @apply scale-100 opacity-100 visible;
+        transition: 0.25s;
+    }
+    .nav-panel li + li:has(.btn),
+    .nav-panel li:has(.btn) + li {
+        @apply mt-4;
+    }
+    /* ActionLink hardcodes `text-neutral` (see Header's own note on the desktop
+       link row above) — same fix, scoped to this panel's own links. */
+    .nav-panel :global(a.text-neutral) {
+        color: #111111;
+    }
+    /* Deliberately smaller than the site's 1.75rem --size control point on .btn
+       (globals.css) — matching that size still read as a bold, oversized glyph
+       once drawn as three solid bars rather than padded text, so this scales
+       the icon down further on its own instead of tying it to button height. */
+    .nav-toggle-icon {
+        @apply block relative bg-current rounded transition;
+        width: 0.875rem;
+        height: 0.125rem;
+    }
+    .nav-toggle-icon:before,
+    .nav-toggle-icon:after {
+        @apply block absolute bg-current rounded transition-all;
+        content: '';
+        width: 0.875rem;
+        height: 0.125rem;
+    }
+    .nav-toggle-icon:before {
+        top: -0.3125rem;
+    }
+    .nav-toggle-icon:after {
+        top: 0.3125rem;
+    }
+    .nav-toggle-icon.is-active {
+        @apply bg-transparent;
+    }
+    .nav-toggle-icon.is-active:before {
+        top: 0;
+        margin-top: -0.375rem;
+        transform: translateY(0.3125rem) rotate(-45deg);
+    }
+    .nav-toggle-icon.is-active:after {
+        top: 0;
+        margin-top: -0.375rem;
+        transform: translateY(0.3125rem) rotate(45deg);
+    }
+</style>
+
+<script>
+    function navToggle() {
+        const nav = document.querySelector('.nav-panel');
+        const navToggleBtn = document.querySelector('.nav-toggle');
+        const navToggleIcon = document.querySelector('.nav-toggle-icon');
+        navToggleBtn?.addEventListener('click', () => {
+            const isMenuExpanded = navToggleBtn.getAttribute('aria-expanded') === 'true';
+            navToggleBtn.setAttribute('aria-expanded', isMenuExpanded ? 'false' : 'true');
+            navToggleBtn.setAttribute('aria-label', isMenuExpanded ? 'Open Menu' : 'Close Menu');
+            navToggleIcon?.classList.toggle('is-active');
+            nav?.classList.toggle('is-visible');
+        });
+    }
+    navToggle();
+    document.addEventListener('astro:after-swap', navToggle);
+</script>

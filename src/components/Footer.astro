@@ -1,0 +1,76 @@
+---
+import { marked } from 'marked';
+import { type Footer } from 'types';
+import Action from '@components/Action.astro';
+import ResponsiveImage from '@components/ResponsiveImage.astro';
+
+interface Props extends Footer {}
+
+const { logo, navLinks, newsletter, socialLinks, text } = Astro.props;
+
+const hasNewsletter = Boolean(newsletter?.heading || newsletter?.body);
+const hasContent = Boolean(logo?.src || navLinks?.length || hasNewsletter || socialLinks?.length || text);
+---
+
+{
+    hasContent && (
+        <footer class="px-4 py-10 sm:px-5 sm:py-14 footer-bar">
+            <div class="mx-auto max-w-7xl">
+                {
+                    logo?.src && (
+                        <a class="flex justify-center" href="/" aria-label="The Plural Stack, home">
+                            <ResponsiveImage _id={logo._id} src={logo.src} width={96} height={96} alt={logo.alt} class="w-10 h-10" />
+                        </a>
+                    )
+                }
+                {
+                    hasNewsletter && (
+                        <div class:list={[logo?.src && 'mt-6', 'max-w-prose mx-auto text-center']}>
+                            {newsletter?.heading && <h2 class="text-xl font-black sm:text-2xl text-balance">{newsletter.heading}</h2>}
+                            {newsletter?.body && (
+                                <div class:list={[newsletter.heading && 'mt-3', 'markdown']} set:html={marked.parse(newsletter.body)} />
+                            )}
+                        </div>
+                    )
+                }
+                {
+                    navLinks && navLinks.length > 0 && (
+                        <ul class:list={[(hasNewsletter || logo?.src) && 'mt-6', 'flex flex-wrap items-center justify-center gap-x-6 gap-y-3']}>
+                            {navLinks.map((item) => (
+                                <li>
+                                    <Action action={item} class:list={[item._type === 'actionLink' && 'no-underline hover:underline']} />
+                                </li>
+                            ))}
+                        </ul>
+                    )
+                }
+                {
+                    socialLinks && socialLinks.length > 0 && (
+                        <ul class:list={[(hasNewsletter || navLinks?.length || logo?.src) && 'mt-6', 'flex flex-wrap items-center justify-center gap-x-6 gap-y-3']}>
+                            {socialLinks.map((item) => (
+                                <li>
+                                    <Action action={item} class="no-underline hover:underline" />
+                                </li>
+                            ))}
+                        </ul>
+                    )
+                }
+                {
+                    text && (
+                        <p class:list={[(hasNewsletter || navLinks?.length || socialLinks?.length || logo?.src) && 'mt-6', 'text-center text-sm opacity-60']}>
+                            {text}
+                        </p>
+                    )
+                }
+            </div>
+        </footer>
+    )
+}
+
+<style>
+    /* Same off-white used by .btn-primary (globals.css) — a fixed value rather than a
+       theme token, so the footer reads consistently regardless of the page's theme. */
+    .footer-bar {
+        background-color: #f2f2f2;
+    }
+</style>

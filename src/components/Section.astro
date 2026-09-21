@@ -1,0 +1,75 @@
+---
+import type { Section } from 'types';
+import BackgroundImage from '@components/BackgroundImage.astro';
+
+interface Props extends Section {
+    class?: string;
+    /** The Sanity section's own `_type` (e.g. `domainSection`) — flows through
+     * automatically via each component's own `...rest` spread (see Hero/Cards/
+     * Domain), not something callers set directly. Exposed as `data-section-type`
+     * so CSS can target specific adjacent-section patterns (see the "Pressing
+     * domains" grouping rules in globals.css) without a dedicated Sanity field. */
+    _type?: string;
+}
+
+const { backgroundImage, theme, width, dividerAfter, class: className, _type } = Astro.props;
+---
+
+{
+    width === 'inset' ? (
+        <section class="w-full px-12 sm:px-18 lg:px-24" data-width="inset" data-section-type={_type} data-divider-after={dividerAfter || undefined}>
+            <div class:list={['relative py-8 mx-auto overflow-hidden max-w-4xl rounded-box sm:py-16', className]} data-theme={theme || 'light'}>
+                {backgroundImage && <BackgroundImage {...backgroundImage} />}
+                <div class="relative w-10/12 mx-auto">
+                    <slot />
+                </div>
+            </div>
+        </section>
+    ) : (
+        <section
+            class:list={['relative w-full px-12 py-8 sm:px-18 sm:py-16 lg:px-24', className]}
+            data-theme={theme || 'light'}
+            data-section-type={_type}
+            data-divider-after={dividerAfter || undefined}
+        >
+            {backgroundImage && <BackgroundImage {...backgroundImage} />}
+            {
+                // Sibling of the centred content column, not nested inside it, so it can span
+                // this section's own full box (same reasoning as BackgroundImage above) — a
+                // slot nested inside the centred `max-w-4xl` div could only ever be sized to
+                // that column, not the full section. Full-bleed rather than a docked strip so
+                // it can sit as a transparent backdrop behind the text column (e.g. Hero's
+                // `sketch` panel), which stacks on top since it comes later in DOM order.
+                // Only rendered when a section actually uses it, so every other section's
+                // markup is untouched.
+                Astro.slots.has('right-panel') && (
+                    <div class="absolute inset-0">
+                        <slot name="right-panel" />
+                    </div>
+                )
+            }
+            <div class="relative mx-auto max-w-4xl">
+                <slot />
+            </div>
+        </section>
+    )
+}
+
+<style>
+    @reference "../styles/globals.css";
+    section[data-width='inset'] + section,
+    section + section[data-width='inset'] {
+        @apply mt-8 sm:mt-16;
+    }
+
+    /* The 'dark' theme's pine green (#152b21, see globals.css) is otherwise a fully
+       solid fill — daisyUI paints every `[data-theme]` surface at 100% opacity. Only
+       overridden for the floating "inset" box (not the full-bleed section theme
+       generally, since nothing else currently sits behind a dark-themed surface for
+       this to blend with), at 90% opacity so the page's own background shows through
+       the box itself slightly, distinct from the fully transparent margins either
+       side of it. */
+    section[data-width='inset'] > [data-theme='dark'] {
+        background-color: color-mix(in srgb, #152b21 90%, transparent);
+    }
+</style>

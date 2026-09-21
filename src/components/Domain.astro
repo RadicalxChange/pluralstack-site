@@ -1,0 +1,36 @@
+---
+import { marked } from 'marked';
+import { type DomainSection } from 'types';
+import Section from '@components/Section.astro';
+
+interface Props extends DomainSection {}
+
+const { heading, eyebrow, body, examples, headingLevel, ...rest } = Astro.props;
+const HeadingTag = headingLevel || 'h2';
+---
+
+<Section {...rest}>
+    <div class="max-w-4xl">
+        {
+            heading && (
+                <HeadingTag class="text-xl font-black sm:text-3xl text-balance">
+                    {heading}
+                </HeadingTag>
+            )
+        }
+        {eyebrow && <p class:list={[heading && 'mt-2', 'text-sm font-bold tracking-widest uppercase opacity-60']}>{eyebrow}</p>}
+        {body && <div class:list={[(heading || eyebrow) && 'mt-4', 'max-w-prose markdown']} set:html={marked.parse(body)} />}
+        {
+            examples && examples.length > 0 && (
+                <div class="mt-6">
+                    <h3 class="text-xs font-bold tracking-widest uppercase opacity-60">Examples</h3>
+                    <ul class="flex flex-wrap gap-2 mt-3">
+                        {examples.map((example) => (
+                            <li class="badge badge-neutral badge-outline">{example}</li>
+                        ))}
+                    </ul>
+                </div>
+            )
+        }
+    </div>
+</Section>

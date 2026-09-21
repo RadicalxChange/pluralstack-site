@@ -1,0 +1,21 @@
+---
+import type { LogosSection } from 'types';
+import ResponsiveImage from '@components/ResponsiveImage.astro';
+
+interface Props {
+    items: LogosSection['items'];
+    class?: string;
+}
+
+const { items, class: className } = Astro.props;
+---
+
+<div class:list={['flex flex-wrap items-center justify-center gap-8', className]}>
+    {
+        items.map((logo) => {
+            return logo.src ? (
+                <ResponsiveImage _id={logo._id} src={logo.src} width={logo.dimensions?.width} height={logo.dimensions?.height} alt={logo.alt} />
+            ) : null;
+        })
+    }
+</div>

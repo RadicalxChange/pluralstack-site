@@ -1,0 +1,21 @@
+---
+import { type ActionLink } from 'types';
+
+interface Props extends ActionLink {
+    class?: string;
+}
+
+const { label, ariaLabel, url, bold, class: className } = Astro.props;
+---
+
+{
+    url ? (
+        <a class:list={['text-neutral', bold && 'font-bold', className]} href={url} aria-label={ariaLabel}>
+            <span>{label}</span>
+        </a>
+    ) : (
+        <button class:list={['text-neutral', bold && 'font-bold', className]} aria-label={ariaLabel}>
+            <span>{label}</span>
+        </button>
+    )
+}
