@@ -1,6 +1,10 @@
 [dev]
   targetPort = 3000
 
+[build]
+  command = "npm run build"
+  publish = "dist"
+
 [build.environment]
   # SANITY_DATASET isn't a secret (it's a Sanity dataset name, e.g. "production") — but
   # Netlify's build-time secrets scanner flags the literal value of every configured env
