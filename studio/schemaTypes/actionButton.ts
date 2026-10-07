@@ -38,6 +38,13 @@ export default defineType({
       group: 'content',
     }),
     defineField({
+      name: 'newTab',
+      title: 'Open in new tab',
+      type: 'boolean',
+      initialValue: false,
+      group: 'content',
+    }),
+    defineField({
       name: 'theme',
       title: 'Theme',
       description: 'The color theme of call-to-action button',

@@ -34,6 +34,13 @@ export default defineType({
       group: 'content',
     }),
     defineField({
+      name: 'newTab',
+      title: 'Open in new tab',
+      type: 'boolean',
+      initialValue: false,
+      group: 'content',
+    }),
+    defineField({
       name: 'bold',
       title: 'Bold',
       description: 'Render this link’s text in bold, for emphasis (e.g. a nav bar link).',

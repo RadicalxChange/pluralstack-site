@@ -5,12 +5,12 @@ interface Props extends ActionLink {
     class?: string;
 }
 
-const { label, ariaLabel, url, bold, class: className } = Astro.props;
+const { label, ariaLabel, url, bold, newTab, class: className } = Astro.props;
 ---
 
 {
     url ? (
-        <a class:list={['text-neutral', bold && 'font-bold', className]} href={url} aria-label={ariaLabel}>
+        <a class:list={['text-neutral', bold && 'font-bold', className]} href={url} aria-label={ariaLabel} {...newTab && { target: '_blank', rel: 'noopener noreferrer' }}>
             <span>{label}</span>
         </a>
     ) : (

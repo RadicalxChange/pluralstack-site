@@ -18,7 +18,7 @@ const { backgroundImage, theme, width, dividerAfter, class: className, _type } =
 {
     width === 'inset' ? (
         <section class="w-full px-12 sm:px-18 lg:px-24" data-width="inset" data-section-type={_type} data-divider-after={dividerAfter || undefined}>
-            <div class:list={['relative py-8 mx-auto overflow-hidden max-w-4xl rounded-box sm:py-16', className]} data-theme={theme || 'light'}>
+            <div class:list={['relative py-6 mx-auto overflow-hidden max-w-4xl rounded-box sm:py-16', className]} data-theme={theme || 'light'}>
                 {backgroundImage && <BackgroundImage {...backgroundImage} />}
                 <div class="relative w-10/12 mx-auto">
                     <slot />
@@ -27,7 +27,7 @@ const { backgroundImage, theme, width, dividerAfter, class: className, _type } =
         </section>
     ) : (
         <section
-            class:list={['relative w-full px-12 py-8 sm:px-18 sm:py-16 lg:px-24', className]}
+            class:list={['relative w-full px-12 py-6 sm:px-18 sm:py-16 lg:px-24', className]}
             data-theme={theme || 'light'}
             data-section-type={_type}
             data-divider-after={dividerAfter || undefined}
@@ -59,7 +59,7 @@ const { backgroundImage, theme, width, dividerAfter, class: className, _type } =
     @reference "../styles/globals.css";
     section[data-width='inset'] + section,
     section + section[data-width='inset'] {
-        @apply mt-8 sm:mt-16;
+        @apply mt-6 sm:mt-16;
     }
 
     /* The 'dark' theme's pine green (#152b21, see globals.css) is otherwise a fully

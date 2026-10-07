@@ -438,6 +438,12 @@
  * fill is at 90% opacity (color-mix against whatever's behind) rather than the flat hex,
  * so the ambient section's own background shows through it slightly.
  */
+/* daisyUI's card body defaults to 0.875rem; match the 1rem body copy used
+   outside cards so card text doesn't read as a size step down. */
+.card-body {
+    --card-fs: 1rem;
+}
+
 .card-primary {
     background-color: color-mix(in srgb, #152b21 90%, transparent);
     color: #f0efe9;

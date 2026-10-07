@@ -3,6 +3,8 @@ export interface Action {
     label: string;
     url?: string;
     ariaLabel?: string;
+    /** Opens the URL in a new browser tab (target="_blank"). */
+    newTab?: boolean;
 }
 
 export interface ActionButton extends Action {
@@ -48,6 +50,8 @@ export interface CardsSection extends Section {
     eyebrow?: string;
     heading?: string;
     body?: string;
+    /** Optional figure shown between the body and the items. */
+    image?: CustomImage;
     items?: Array<Card>;
     columns?: 'one' | 'two' | 'three';
     outro?: string;

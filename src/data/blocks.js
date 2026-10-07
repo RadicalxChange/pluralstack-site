@@ -22,6 +22,9 @@ export const SECTIONS = `{
       image ${IMAGE}
     }
   },
+  _type == "cardsSection" => {
+    image ${IMAGE}
+  },
   _type == "logosSection" => {
     items[] ${IMAGE}
   },

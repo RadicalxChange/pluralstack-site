@@ -29,6 +29,13 @@ export default defineType({
       group: 'content',
     }),
     defineField({
+      name: 'image',
+      title: 'Image',
+      description: 'Optional figure shown between the body and the items (e.g. a diagram).',
+      type: 'customImage',
+      group: 'content',
+    }),
+    defineField({
       name: 'items',
       title: 'Items',
       type: 'array',

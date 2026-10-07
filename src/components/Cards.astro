@@ -3,11 +3,12 @@ import { marked } from 'marked';
 import { type CardsSection } from 'types';
 import Action from '@components/Action.astro';
 import Card from '@components/Card.astro';
+import ResponsiveImage from '@components/ResponsiveImage.astro';
 import Section from '@components/Section.astro';
 
 interface Props extends CardsSection {}
 
-const { eyebrow, heading, body, items, columns, outro, outroIntro, cta, compactTiles, outroBoxed, headingLevel, ...rest } =
+const { eyebrow, heading, body, image, items, columns, outro, outroIntro, cta, compactTiles, outroBoxed, headingLevel, ...rest } =
     Astro.props;
 const HeadingTag = headingLevel || 'h2';
 
@@ -31,6 +32,20 @@ const isArrow = (block: string) => /^[↓→←↑]+$/.test(block);
     }
     {body && <div class:list={[heading && 'mt-4', 'max-w-prose markdown']} set:html={marked.parse(body)} />}
     {
+        image?.src && (
+            <figure class:list={[(heading || body) && 'mt-6 sm:mt-8']}>
+                <ResponsiveImage
+                    _id={image._id}
+                    src={image.src}
+                    width={image.dimensions?.width}
+                    height={image.dimensions?.height}
+                    alt={image.alt}
+                    class="w-full h-auto"
+                />
+            </figure>
+        )
+    }
+    {
         items && items?.length > 0 && (
             // flex-wrap + justify-center rather than CSS grid: grid leaves a short last row
             // (e.g. 5 items over 3 columns) pinned to the left instead of centred under the
@@ -40,7 +55,7 @@ const isArrow = (block: string) => /^[↓→←↑]+$/.test(block);
             // sized and only the leftover space in a short row gets centred away instead of
             // being divided up between whichever cards happen to be in that row.
             <div
-                class:list={[(heading || body) && 'mt-8', 'flex flex-wrap justify-center gap-8']}
+                class:list={[(heading || body || image) && 'mt-6 sm:mt-8', 'flex flex-wrap justify-center gap-5 sm:gap-8']}
             >
                 {items?.map((item) => (
                     <Card

@@ -5,7 +5,7 @@ interface Props extends ActionButton {
     class?: string;
 }
 
-const { label, ariaLabel, url, theme, class: className } = Astro.props;
+const { label, ariaLabel, url, theme, newTab, class: className } = Astro.props;
 
 const themeClassMap = {
     primary: 'btn-primary',
@@ -17,7 +17,7 @@ const themeClassMap = {
 
 {
     url ? (
-        <a class:list={['btn', themeClassMap[theme || 'primary'], className]} href={url} aria-label={ariaLabel}>
+        <a class:list={['btn', themeClassMap[theme || 'primary'], className]} href={url} aria-label={ariaLabel} {...newTab && { target: '_blank', rel: 'noopener noreferrer' }}>
             <span>{label}</span>
         </a>
     ) : (
