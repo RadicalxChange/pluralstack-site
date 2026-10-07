@@ -52,6 +52,8 @@ export interface CardsSection extends Section {
     body?: string;
     /** Optional figure shown between the body and the items. */
     image?: CustomImage;
+    /** Where `image` sits relative to the items; unset = 'afterItems'. */
+    imagePosition?: 'beforeItems' | 'afterItems';
     items?: Array<Card>;
     columns?: 'one' | 'two' | 'three';
     outro?: string;

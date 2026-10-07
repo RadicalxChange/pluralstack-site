@@ -8,7 +8,7 @@ import Section from '@components/Section.astro';
 
 interface Props extends CardsSection {}
 
-const { eyebrow, heading, body, image, items, columns, outro, outroIntro, cta, compactTiles, outroBoxed, headingLevel, ...rest } =
+const { eyebrow, heading, body, image, imagePosition, items, columns, outro, outroIntro, cta, compactTiles, outroBoxed, headingLevel, ...rest } =
     Astro.props;
 const HeadingTag = headingLevel || 'h2';
 
@@ -19,6 +19,10 @@ const HeadingTag = headingLevel || 'h2';
 // (e.g. "Foundational ↓ Emergent ↓ Super-emergent"), not general closing copy.
 const outroBlocks = outroBoxed ? outro?.split(/\n\s*\n/).map((block) => block.trim()) : undefined;
 const isArrow = (block: string) => /^[↓→←↑]+$/.test(block);
+
+// Unset counts as 'afterItems' (the schema's initial value), so images added
+// before the field existed render below the cards too.
+const imageAfterItems = imagePosition !== 'beforeItems';
 ---
 
 <Section {...rest} class="text-left">
@@ -32,7 +36,7 @@ const isArrow = (block: string) => /^[↓→←↑]+$/.test(block);
     }
     {body && <div class:list={[heading && 'mt-4', 'max-w-prose markdown']} set:html={marked.parse(body)} />}
     {
-        image?.src && (
+        image?.src && !imageAfterItems && (
             <figure class:list={[(heading || body) && 'mt-6 sm:mt-8']}>
                 <ResponsiveImage
                     _id={image._id}
@@ -55,7 +59,7 @@ const isArrow = (block: string) => /^[↓→←↑]+$/.test(block);
             // sized and only the leftover space in a short row gets centred away instead of
             // being divided up between whichever cards happen to be in that row.
             <div
-                class:list={[(heading || body || image) && 'mt-6 sm:mt-8', 'flex flex-wrap justify-center gap-5 sm:gap-8']}
+                class:list={[(heading || body || (image?.src && !imageAfterItems)) && 'mt-6 sm:mt-8', 'flex flex-wrap justify-center gap-5 sm:gap-8']}
             >
                 {items?.map((item) => (
                     <Card
@@ -72,6 +76,20 @@ const isArrow = (block: string) => /^[↓→←↑]+$/.test(block);
                     />
                 ))}
             </div>
+        )
+    }
+    {
+        image?.src && imageAfterItems && (
+            <figure class:list={[(heading || body || items?.length) && 'mt-6 sm:mt-8']}>
+                <ResponsiveImage
+                    _id={image._id}
+                    src={image.src}
+                    width={image.dimensions?.width}
+                    height={image.dimensions?.height}
+                    alt={image.alt}
+                    class="w-full h-auto"
+                />
+            </figure>
         )
     }
     {!outroBoxed && outro && <div class="mt-8 max-w-prose markdown" set:html={marked.parse(outro)} />}

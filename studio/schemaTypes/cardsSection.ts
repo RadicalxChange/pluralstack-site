@@ -31,8 +31,22 @@ export default defineType({
     defineField({
       name: 'image',
       title: 'Image',
-      description: 'Optional figure shown between the body and the items (e.g. a diagram).',
+      description: 'Optional figure (e.g. a diagram). Placement is set by "Image position".',
       type: 'customImage',
+      group: 'content',
+    }),
+    defineField({
+      name: 'imagePosition',
+      title: 'Image position',
+      type: 'string',
+      options: {
+        list: [
+          {title: 'Above the items', value: 'beforeItems'},
+          {title: 'Below the items (before the outro)', value: 'afterItems'},
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'afterItems',
       group: 'content',
     }),
     defineField({
