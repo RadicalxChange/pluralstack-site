@@ -22,7 +22,7 @@ interface Props {
 const { addTitleSuffix, description, image, fullHeightHero, noindex } = Astro.props;
 
 // GoatCounter site code: the subdomain in https://<code>.goatcounter.com
-const GOATCOUNTER_CODE = 'jaconu';
+const GOATCOUNTER_CODE = 'pluralstack';
 
 const configData: SiteConfig = (await fetchData()) || {};
 const titleSuffix = configData.titleSuffix && addTitleSuffix !== false ? configData.titleSuffix : undefined;
