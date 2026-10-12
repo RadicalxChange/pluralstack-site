@@ -20,6 +20,9 @@ const isDisabled = !isConnected;
 // documented belt-and-braces for framework-rendered forms. `bot-field` is Netlify's
 // built-in honeypot — a field real visitors never see or fill in, but simple spam bots
 // often do; Netlify silently drops any submission where it's non-empty.
+// `action` sends Netlify's post-submit redirect to our own /thanks/ page (src/pages/
+// thanks.astro) instead of its generic success page — also what lets analytics count
+// submissions, as page views of /thanks/.
 const isNetlifyForm = Boolean(formName);
 ---
 
@@ -39,6 +42,7 @@ const isNetlifyForm = Boolean(formName);
                     class="mt-8 space-y-4"
                     inert={isDisabled}
                     method={isNetlifyForm ? 'POST' : undefined}
+                    action={isNetlifyForm ? '/thanks/' : undefined}
                     name={formName}
                     data-netlify={isNetlifyForm ? 'true' : undefined}
                     data-netlify-honeypot={isNetlifyForm ? 'bot-field' : undefined}

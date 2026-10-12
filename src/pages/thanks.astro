@@ -1,0 +1,21 @@
+---
+import Layout from '@layouts/Layout.astro';
+import Hero from '@components/Hero.astro';
+
+// Where Netlify redirects after a form submission (see `action` in Form.astro). A static
+// page rather than a Sanity one so the redirect target can never go missing; noindex and
+// left out of the sitemap (astro.config.mjs) since it only makes sense after submitting.
+---
+
+<Layout title="Thank you" description="Thanks for getting in touch with the Plural Stack." noindex fullHeightHero>
+    <div class="flex-1 flex flex-col">
+        <Hero
+            heading="Thank you."
+            body="We've received your message and will get back to you soon. In the meantime, explore the work behind the Plural Stack."
+            cta={[
+                { _type: 'actionButton', label: 'Read the paper →', url: '/activities/plural-stack-paper/', theme: 'primary' },
+                { _type: 'actionButton', label: 'Back to home', url: '/', theme: 'secondary' }
+            ]}
+        />
+    </div>
+</Layout>

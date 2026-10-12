@@ -14,7 +14,7 @@ export default defineConfig({
     image: {
         domains: ['cdn.sanity.io']
     },
-    integrations: [sanity(sanityConfig), sitemap()],
+    integrations: [sanity(sanityConfig), sitemap({ filter: (page) => !page.includes('/thanks/') })],
     vite: {
         plugins: [tailwindcss()],
         server: {
