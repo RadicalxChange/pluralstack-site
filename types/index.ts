@@ -142,6 +142,8 @@ export interface HeroSection extends Section {
     subheading?: string;
     body?: string;
     cta?: Array<ActionButton | ActionLink>;
+    /** Optional image in a ~25% right column beside the text; hidden below `md`. */
+    image?: CustomImage;
     outro?: string;
     /** Which p5 grid sketch variant (if any) to render as a full-bleed, transparent backdrop
      * behind the text — 'squares' is gridSketch.js, 'mark' is gridSketchMark.js. Square size

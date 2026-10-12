@@ -4,46 +4,67 @@ import { type HeroSection } from 'types';
 import Action from '@components/Action.astro';
 import Card from '@components/Card.astro';
 import Section from '@components/Section.astro';
+import ResponsiveImage from '@components/ResponsiveImage.astro';
 
 interface Props extends HeroSection {}
 
-const { heading, subheading, body, cta, outro, items, columns, sketch, headingLevel, ...rest } = Astro.props;
+const { heading, subheading, body, cta, image, outro, items, columns, sketch, headingLevel, ...rest } = Astro.props;
 const HeadingTag = headingLevel || 'h1';
 ---
 
 <Section {...rest} class="text-left !py-16 sm:!py-24">
-    {
-        heading && (
-            <HeadingTag class="text-[1.594rem] font-black sm:text-[2.55rem] text-balance">
-                {heading.split('\n').map((line, i) => (
-                    <Fragment>
-                        {i > 0 && <br />}
-                        {line}
-                    </Fragment>
-                ))}
-            </HeadingTag>
-        )
-    }
-    {
-        subheading && (
-            <h2 class:list={[heading && 'mt-4', 'text-xl font-bold sm:text-3xl text-balance opacity-80']}>
-                {subheading}
-            </h2>
-        )
-    }
-    {body && <div class:list={[(heading || subheading) && 'mt-6', 'max-w-prose markdown']} set:html={marked.parse(body)} />}
-    {
-        cta && cta.length > 0 && (
-            <div class:list={[(heading || body) && 'mt-8', 'flex flex-wrap items-center justify-start gap-4 hero-ctas']}>
-                {cta.map((item) => (
-                    <Action
-                        action={item}
-                        class:list={[item._type === 'actionLink' && 'link-underline']}
+    {/* With an image: ~75/25 split (text | image) from `md` up; below that the image is
+         hidden and the text takes the full width. Items and outro stay full-width below. */}
+    <div class:list={[image?.src && 'md:grid md:grid-cols-[3fr_1fr] md:gap-12 md:items-start']}>
+        <div>
+            {
+                heading && (
+                    <HeadingTag class="text-[1.594rem] font-black sm:text-[2.55rem] text-balance">
+                        {heading.split('\n').map((line, i) => (
+                            <Fragment>
+                                {i > 0 && <br />}
+                                {line}
+                            </Fragment>
+                        ))}
+                    </HeadingTag>
+                )
+            }
+            {
+                subheading && (
+                    <h2 class:list={[heading && 'mt-4', 'text-xl font-bold sm:text-3xl text-balance opacity-80']}>
+                        {subheading}
+                    </h2>
+                )
+            }
+            {body && <div class:list={[(heading || subheading) && 'mt-6', 'max-w-prose markdown']} set:html={marked.parse(body)} />}
+            {
+                cta && cta.length > 0 && (
+                    <div class:list={[(heading || body) && 'mt-8', 'flex flex-wrap items-center justify-start gap-4 hero-ctas']}>
+                        {cta.map((item) => (
+                            <Action
+                                action={item}
+                                class:list={[item._type === 'actionLink' && 'link-underline']}
+                            />
+                        ))}
+                    </div>
+                )
+            }
+        </div>
+        {
+            image?.src && (
+                <figure class="hidden md:block">
+                    <ResponsiveImage
+                        _id={image._id}
+                        src={image.src}
+                        width={image.dimensions?.width}
+                        height={image.dimensions?.height}
+                        alt={image.alt}
+                        class="w-full h-auto"
                     />
-                ))}
-            </div>
-        )
-    }
+                </figure>
+            )
+        }
+    </div>
     {
         items && items.length > 0 && (
             // Left-justified (not centred, unlike Cards.astro's standalone grid) to match

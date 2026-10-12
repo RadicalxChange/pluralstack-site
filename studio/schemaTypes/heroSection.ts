@@ -38,6 +38,13 @@ export default defineType({
       group: 'content',
     }),
     defineField({
+      name: 'image',
+      title: 'Image',
+      description: 'Optional image shown in a narrow column to the right of the text (desktop only, hidden on mobile).',
+      type: 'customImage',
+      group: 'content',
+    }),
+    defineField({
       name: 'outro',
       title: 'Outro',
       description: 'Small print shown below the call-to-action.',

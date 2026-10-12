@@ -22,7 +22,7 @@ export const SECTIONS = `{
       image ${IMAGE}
     }
   },
-  _type == "cardsSection" => {
+  _type == "cardsSection" || _type == "heroSection" => {
     image ${IMAGE}
   },
   _type == "logosSection" => {
