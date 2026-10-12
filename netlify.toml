@@ -15,3 +15,9 @@
   # aren't confined to any fixed set of files. SANITY_TOKEN — the value actually worth
   # protecting — is untouched and still scanned normally.
   SECRETS_SCAN_OMIT_KEYS = "SANITY_DATASET"
+# The assessment page's slug changed to /plural-ai-stack-assessment/; keep the old URL
+# (already linked/shared) working.
+[[redirects]]
+  from = "/activities/plural-stack-assessment/*"
+  to = "/plural-ai-stack-assessment/"
+  status = 301
